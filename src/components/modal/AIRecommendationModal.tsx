@@ -75,7 +75,12 @@ const AIRecommendationModal = ({
                 style={{ backgroundColor: designTokens.colors.dark[700] }}
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-error-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5 text-error-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -91,7 +96,12 @@ const AIRecommendationModal = ({
               {/* 보조지표 상세 분석 */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-5 h-5 text-info-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5 text-info-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -109,7 +119,10 @@ const AIRecommendationModal = ({
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-dark-400">RSI(14)</span>
-                      <span className="text-xs px-2 py-1 rounded" style={{ backgroundColor: '#f59e0b', color: '#fff' }}>
+                      <span
+                        className="text-xs px-2 py-1 rounded"
+                        style={{ backgroundColor: '#f59e0b', color: '#fff' }}
+                      >
                         oversold
                       </span>
                     </div>
@@ -135,7 +148,10 @@ const AIRecommendationModal = ({
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-dark-400">Stochastic</span>
-                      <span className="text-xs px-2 py-1 rounded" style={{ backgroundColor: '#f59e0b', color: '#fff' }}>
+                      <span
+                        className="text-xs px-2 py-1 rounded"
+                        style={{ backgroundColor: '#f59e0b', color: '#fff' }}
+                      >
                         oversold
                       </span>
                     </div>
@@ -223,7 +239,9 @@ const AIRecommendationModal = ({
                       clipRule="evenodd"
                     />
                   </svg>
-                  <h3 className="text-base font-semibold text-warning-400">주의해야 할 위험 요소</h3>
+                  <h3 className="text-base font-semibold text-warning-400">
+                    주의해야 할 위험 요소
+                  </h3>
                 </div>
                 <div
                   className="rounded-lg border border-dark-700 p-5"
@@ -258,12 +276,10 @@ const AIRecommendationModal = ({
                 color: designTokens.colors.dark[100],
               }}
             >
-              나중에 결정
+              다음에
             </button>
-            <button
-              className="flex-1 px-4 py-3 bg-error-600 hover:bg-error-700 text-white rounded-lg font-semibold transition-colors duration-200"
-            >
-              매수 주문하기
+            <button className="flex-1 px-4 py-3 bg-error-600 hover:bg-error-700 text-white rounded-lg font-semibold transition-colors duration-200">
+              매수 주문
             </button>
           </div>
         </div>
@@ -273,4 +289,3 @@ const AIRecommendationModal = ({
 };
 
 export default AIRecommendationModal;
-

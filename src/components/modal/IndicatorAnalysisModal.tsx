@@ -25,7 +25,7 @@ const IndicatorAnalysisModal = ({
       >
         {/* 모달 컨텐츠 */}
         <div
-          className="relative w-full max-w-5xl max-h-[90vh] rounded-lg border border-dark-700 flex flex-col"
+          className="relative w-full max-w-2xl max-h-[90vh] rounded-lg border border-dark-700 flex flex-col"
           style={{ backgroundColor: designTokens.colors.dark[800] }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -173,7 +173,7 @@ const IndicatorAnalysisModal = ({
                 background: 'linear-gradient(90deg, #a855f7 0%, #3b82f6 100%)',
               }}
             >
-              AI 추천 보기
+              더보기
             </button>
           </div>
         </div>

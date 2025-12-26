@@ -1,178 +1,148 @@
 import { designTokens } from '../../design/tokens';
 import { useState } from 'react';
-import AIRecommendationModal from '../../components/modal/AIRecommendationModal';
+import logo from '../../assets/img/logo.svg';
 
-const AIPanel = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const Sidebar = () => {
+  const [activeItem, setActiveItem] = useState('홈');
+
+  const menuItems = [
+    { id: '메인', label: '메인', icon: 'main' },
+    { id: '관심', label: '관심', icon: 'star' },
+    { id: '트레이딩', label: '트레이딩', icon: 'trading' },
+    { id: '최근', label: '최근', icon: 'recently' },
+  ];
+
+  const getIcon = (iconType: string) => {
+    switch (iconType) {
+      case 'main':
+        return (
+          <svg className="w-4 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a2 2 0 002 2h3m10-11l2 2m-2-2v10a2 2 0 01-2 2h-3m-6 0a2 2 0 002-2v-4a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 002 2m-6 0h6"
+            />
+          </svg>
+        );
+      case 'star':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+            />
+          </svg>
+        );
+      case 'trading':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
+          </svg>
+        );
+      case 'recently':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
-    <>
-      <div className="h-full flex flex-col gap-2">
-        {/* AI 매매 추천 */}
-        <div
-          className="rounded-lg border border-dark-800 p-4 cursor-pointer hover:opacity-90 transition-opacity duration-200"
-          style={{ backgroundColor: designTokens.colors.dark[800] }}
-          onClick={() => setIsModalOpen(true)}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              {/* AI 아이콘 */}
-              <svg
-                className="w-5 h-5 text-dark-100"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+    <aside
+      className="h-full flex-shrink-0 border-r border-dark-800"
+      style={{ backgroundColor: designTokens.colors.dark[800], width: '80px' }}
+    >
+      <div className="flex flex-col h-full">
+        {/* 상단 로고 영역 */}
+        <div className="p-4 border-b border-dark-800 flex flex-col items-center">
+          <img src={logo} alt="LYNX Logo" className="w-9 h-9" />
+        </div>
+
+        {/* 네비게이션 메뉴 */}
+        <nav className="flex-1 py-2">
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveItem(item.id)}
+              className={`w-full flex flex-col items-center gap-1 px-2 py-3 transition-colors duration-200 ${
+                activeItem === item.id
+                  ? 'text-dark-100 bg-dark-800'
+                  : 'text-dark-400 hover:text-dark-100 hover:bg-dark-800'
+              }`}
+            >
+              {getIcon(item.icon)}
+              <span className="text-xs text-center leading-tight">{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        {/* 하단 유틸리티 */}
+        <div className="border-t">
+          <div className="flex flex-col items-center">
+            {/* 밝기/테마 */}
+            <button className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                  strokeWidth={1.5}
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
                 />
               </svg>
-              <h3 className="text-base font-semibold text-dark-100">AI 매매 추천</h3>
-            </div>
-            {/* 별 아이콘 */}
-            <svg className="w-4 h-4 text-warning-400" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-          </div>
-          <button className="w-full px-4 py-3 bg-error-600 hover:bg-error-700 text-white rounded-lg font-semibold transition-colors duration-200 mb-3">
-            매수
-          </button>
-          <div className="text-sm text-dark-300 mb-2">
-            <span className="text-dark-400">신뢰도 </span>
-            <span className="font-semibold text-dark-100">78%</span>
-          </div>
-          {/* 진행 바 */}
-          <div className="w-full h-2 bg-dark-700 rounded-full mb-3 overflow-hidden">
-            <div
-              className="h-full rounded-full"
-              style={{
-                width: '78%',
-                background: 'linear-gradient(90deg, #a855f7 0%, #3b82f6 100%)',
-              }}
-            />
-          </div>
-          <p className="text-xs text-dark-400 leading-relaxed">
-            RSI 과매도 구간 진입, 거래량 급증, 긍정 뉴스 3건 감지
-          </p>
-        </div>
+            </button>
 
-        {/* 보조지표 분석 */}
-        <div
-          className="rounded-lg border border-dark-800 p-4"
-          style={{ backgroundColor: designTokens.colors.dark[800] }}
-        >
-          <h3 className="text-base font-semibold text-dark-100 mb-4">보조지표 분석</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col">
-              <span className="text-sm text-dark-400 mb-1">RSI(14)</span>
-              <span className="text-sm font-semibold text-dark-100">32.5</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm text-dark-400 mb-1">MACD</span>
-              <span className="text-sm font-semibold text-dark-100">양전환</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm text-dark-400 mb-1">Volume</span>
-              <span className="text-sm font-semibold text-dark-100">+145%</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm text-dark-400 mb-1">Bollinger</span>
-              <span className="text-sm font-semibold text-dark-100">하단접촉</span>
-            </div>
-          </div>
-        </div>
+            {/* 설정 */}
+            <button className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </button>
 
-        {/* 실시간 뉴스 */}
-        <div
-          className="flex-1 flex flex-col rounded-lg border border-dark-800 p-4 min-h-0"
-          style={{ backgroundColor: designTokens.colors.dark[800] }}
-        >
-          <h3 className="text-base font-semibold text-dark-100 mb-4">실시간 뉴스</h3>
-          <div className="flex-1 overflow-y-auto scrollbar-thin space-y-3 min-h-0">
-            <div className="flex items-start gap-2">
-              <svg
-                className="w-4 h-4 text-error-500 mt-0.5 flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <div className="flex-1">
-                <p className="text-sm text-dark-100 mb-1">삼성전자, 3나노 공정 기술 개발 성공</p>
-                <p className="text-xs text-dark-400">10분 전</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <svg
-                className="w-4 h-4 text-error-500 mt-0.5 flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <div className="flex-1">
-                <p className="text-sm text-dark-100 mb-1">반도체 업황 회복 신호 포착</p>
-                <p className="text-xs text-dark-400">25분 전</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <svg
-                className="w-4 h-4 text-error-500 mt-0.5 flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <div className="flex-1">
-                <p className="text-sm text-dark-100 mb-1">AI 칩 수요 증가세 지속</p>
-                <p className="text-xs text-dark-400">1시간 전</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <svg
-                className="w-4 h-4 text-info-500 mt-0.5 flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <div className="flex-1">
-                <p className="text-sm text-dark-100 mb-1">중국 반도체 규제 강화 우려</p>
-                <p className="text-xs text-dark-400">2시간 전</p>
-              </div>
+            <div className="border-t border-dark-700">
+              {/* 프로필 */}
+              <button className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
       </div>
-
-      {/* AI 매매 추천 모달 */}
-      <AIRecommendationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        stockName="삼성전자"
-        stockCode="005930"
-      />
-    </>
+    </aside>
   );
 };
 
-export default AIPanel;
+export default Sidebar;
