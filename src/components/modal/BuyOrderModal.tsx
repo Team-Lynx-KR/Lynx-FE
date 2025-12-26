@@ -9,6 +9,7 @@ interface BuyOrderModalProps {
   currentPrice: number;
   changePercent: number;
   availableBalance: number;
+  orderType?: 'buy' | 'sell';
 }
 
 const BuyOrderModal = ({
@@ -19,9 +20,12 @@ const BuyOrderModal = ({
   currentPrice,
   changePercent,
   availableBalance,
+  orderType: initialOrderType = 'buy',
 }: BuyOrderModalProps) => {
-  const [orderType, setOrderType] = useState<'market' | 'limit'>('market');
+  const [priceType, setPriceType] = useState<'market' | 'limit'>('market');
   const [quantity, setQuantity] = useState<number>(0);
+  
+  const isBuy = initialOrderType === 'buy';
 
   if (!isOpen) return null;
 
@@ -69,7 +73,9 @@ const BuyOrderModal = ({
         >
           {/* 헤더 */}
           <div className="flex items-center justify-between p-6 border-b border-dark-700">
-            <h2 className="text-lg font-semibold text-dark-100">매수 주문</h2>
+            <h2 className="text-lg font-semibold text-dark-100">
+              {isBuy ? '매수 주문' : '매도 주문'}
+            </h2>
             <button
               onClick={onClose}
               className="p-2 text-dark-400 hover:text-dark-100 hover:bg-dark-700 rounded-lg transition-colors duration-200"
@@ -115,12 +121,12 @@ const BuyOrderModal = ({
               <p className="text-sm text-dark-400 mb-3">주문 유형</p>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setOrderType('market')}
+                  onClick={() => setPriceType('market')}
                   className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-colors duration-200 ${
-                    orderType === 'market' ? 'text-white' : 'text-dark-300'
+                    priceType === 'market' ? 'text-white' : 'text-dark-300'
                   }`}
                   style={
-                    orderType === 'market'
+                    priceType === 'market'
                       ? {
                           background: 'linear-gradient(90deg, #a855f7 0%, #3b82f6 100%)',
                         }
@@ -132,12 +138,12 @@ const BuyOrderModal = ({
                   시장가
                 </button>
                 <button
-                  onClick={() => setOrderType('limit')}
+                  onClick={() => setPriceType('limit')}
                   className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-colors duration-200 ${
-                    orderType === 'limit' ? 'text-white' : 'text-dark-300'
+                    priceType === 'limit' ? 'text-white' : 'text-dark-300'
                   }`}
                   style={
-                    orderType === 'limit'
+                    priceType === 'limit'
                       ? {
                           background: 'linear-gradient(90deg, #a855f7 0%, #3b82f6 100%)',
                         }
@@ -234,7 +240,7 @@ const BuyOrderModal = ({
               </div>
             </div>
 
-            {/* 매수 가능 */}
+            {/* 매수/매도 가능 */}
             <div className="flex items-center gap-2 mb-6">
               <svg className="w-5 h-5 text-info-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -245,7 +251,7 @@ const BuyOrderModal = ({
                 />
               </svg>
               <div className="flex-1">
-                <p className="text-sm text-dark-400 mb-1">매수 가능</p>
+                <p className="text-sm text-dark-400 mb-1">{isBuy ? '매수 가능' : '매도 가능'}</p>
                 <p className="text-base font-semibold text-dark-100">
                   {formatPrice(availableBalance)}원
                 </p>
@@ -266,10 +272,14 @@ const BuyOrderModal = ({
               취소
             </button>
             <button
-              className="flex-1 px-4 py-3 bg-error-600 hover:bg-error-700 text-white rounded-lg font-semibold transition-colors duration-200"
+              className={`flex-1 px-4 py-3 text-white rounded-lg font-semibold transition-colors duration-200 ${
+                isBuy
+                  ? 'bg-error-600 hover:bg-error-700'
+                  : 'bg-info-600 hover:bg-info-700'
+              }`}
               disabled={quantity === 0 || calculateTotal() > availableBalance}
             >
-              매수 주문
+              {isBuy ? '매수 주문' : '매도 주문'}
             </button>
           </div>
         </div>

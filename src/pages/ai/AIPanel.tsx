@@ -9,6 +9,7 @@ const AIPanel = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isIndicatorModalOpen, setIsIndicatorModalOpen] = useState(false);
   const [isBuyOrderModalOpen, setIsBuyOrderModalOpen] = useState(false);
+  const [isSellOrderModalOpen, setIsSellOrderModalOpen] = useState(false);
   const [selectedNews, setSelectedNews] = useState<{
     title: string;
     time: string;
@@ -66,14 +67,24 @@ const AIPanel = () => {
           >
             RSI 과매도 구간 진입, 거래량 급증, 긍정 뉴스 3건 감지
           </p>
-          <button
-            onClick={() => {
-              setIsBuyOrderModalOpen(true);
-            }}
-            className="w-full px-4 py-3 bg-error-600 hover:bg-error-700 text-white rounded-lg font-semibold transition-colors duration-200"
-          >
-            매수
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setIsSellOrderModalOpen(true);
+              }}
+              className="flex-1 px-4 py-3 bg-info-600 hover:bg-info-700 text-white rounded-lg font-semibold transition-colors duration-200"
+            >
+              매도
+            </button>
+            <button
+              onClick={() => {
+                setIsBuyOrderModalOpen(true);
+              }}
+              className="flex-1 px-4 py-3 bg-error-600 hover:bg-error-700 text-white rounded-lg font-semibold transition-colors duration-200"
+            >
+              매수
+            </button>
+          </div>
         </div>
 
         {/* 보조지표 분석 */}
@@ -254,6 +265,19 @@ const AIPanel = () => {
         currentPrice={71500}
         changePercent={2.34}
         availableBalance={1250000}
+        orderType="buy"
+      />
+
+      {/* 매도 주문 모달 */}
+      <BuyOrderModal
+        isOpen={isSellOrderModalOpen}
+        onClose={() => setIsSellOrderModalOpen(false)}
+        stockName="삼성전자"
+        stockCode="005930"
+        currentPrice={71500}
+        changePercent={2.34}
+        availableBalance={1250000}
+        orderType="sell"
       />
     </>
   );
