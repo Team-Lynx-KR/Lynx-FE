@@ -1,13 +1,19 @@
 import { designTokens } from '../../design/tokens';
+import { useState } from 'react';
+import AIRecommendationModal from '../../components/modal/AIRecommendationModal';
 
 const AIPanel = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
-    <div className="h-full flex flex-col gap-4">
-      {/* AI 매매 추천 */}
-      <div
-        className="rounded-lg border border-dark-800 p-4"
-        style={{ backgroundColor: designTokens.colors.dark[800] }}
-      >
+    <>
+      <div className="h-full flex flex-col gap-2">
+        {/* AI 매매 추천 */}
+        <div
+          className="rounded-lg border border-dark-800 p-4 cursor-pointer hover:opacity-90 transition-opacity duration-200"
+          style={{ backgroundColor: designTokens.colors.dark[800] }}
+          onClick={() => setIsModalOpen(true)}
+        >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             {/* AI 아이콘 */}
@@ -55,39 +61,39 @@ const AIPanel = () => {
         <p className="text-xs text-dark-400 leading-relaxed">
           RSI 과매도 구간 진입, 거래량 급증, 긍정 뉴스 3건 감지
         </p>
-      </div>
+        </div>
 
-      {/* 보조지표 분석 */}
-      <div
-        className="rounded-lg border border-dark-800 p-4"
-        style={{ backgroundColor: designTokens.colors.dark[800] }}
-      >
-        <h3 className="text-base font-semibold text-dark-100 mb-4">보조지표 분석</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col">
-            <span className="text-sm text-dark-400 mb-1">RSI(14)</span>
-            <span className="text-sm font-semibold text-dark-100">32.5</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm text-dark-400 mb-1">MACD</span>
-            <span className="text-sm font-semibold text-dark-100">양전환</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm text-dark-400 mb-1">Volume</span>
-            <span className="text-sm font-semibold text-dark-100">+145%</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm text-dark-400 mb-1">Bollinger</span>
-            <span className="text-sm font-semibold text-dark-100">하단접촉</span>
+        {/* 보조지표 분석 */}
+        <div
+          className="rounded-lg border border-dark-800 p-4"
+          style={{ backgroundColor: designTokens.colors.dark[800] }}
+        >
+          <h3 className="text-base font-semibold text-dark-100 mb-4">보조지표 분석</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col">
+              <span className="text-sm text-dark-400 mb-1">RSI(14)</span>
+              <span className="text-sm font-semibold text-dark-100">32.5</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm text-dark-400 mb-1">MACD</span>
+              <span className="text-sm font-semibold text-dark-100">양전환</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm text-dark-400 mb-1">Volume</span>
+              <span className="text-sm font-semibold text-dark-100">+145%</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm text-dark-400 mb-1">Bollinger</span>
+              <span className="text-sm font-semibold text-dark-100">하단접촉</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* 실시간 뉴스 */}
-      <div
-        className="flex-1 flex flex-col rounded-lg border border-dark-800 p-4 min-h-0"
-        style={{ backgroundColor: designTokens.colors.dark[800] }}
-      >
+        {/* 실시간 뉴스 */}
+        <div
+          className="flex-1 flex flex-col rounded-lg border border-dark-800 p-4 min-h-0"
+          style={{ backgroundColor: designTokens.colors.dark[800] }}
+        >
         <h3 className="text-base font-semibold text-dark-100 mb-4">실시간 뉴스</h3>
         <div className="flex-1 overflow-y-auto scrollbar-thin space-y-3 min-h-0">
           <div className="flex items-start gap-2">
@@ -160,7 +166,16 @@ const AIPanel = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+
+      {/* AI 매매 추천 모달 */}
+      <AIRecommendationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        stockName="삼성전자"
+        stockCode="005930"
+      />
+    </>
   );
 };
 
