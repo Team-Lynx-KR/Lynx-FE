@@ -1,9 +1,11 @@
 import { designTokens } from '../../design/tokens';
 import { useState } from 'react';
 import AIRecommendationModal from '../../components/modal/AIRecommendationModal';
+import IndicatorAnalysisModal from '../../components/modal/IndicatorAnalysisModal';
 
 const AIPanel = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isIndicatorModalOpen, setIsIndicatorModalOpen] = useState(false);
 
   return (
     <>
@@ -65,8 +67,9 @@ const AIPanel = () => {
 
         {/* 보조지표 분석 */}
         <div
-          className="rounded-lg border border-dark-800 p-4"
+          className="rounded-lg border border-dark-800 p-4 cursor-pointer hover:opacity-90 transition-opacity duration-200"
           style={{ backgroundColor: designTokens.colors.dark[800] }}
+          onClick={() => setIsIndicatorModalOpen(true)}
         >
           <h3 className="text-base font-semibold text-dark-100 mb-4">보조지표 분석</h3>
           <div className="grid grid-cols-2 gap-3">
@@ -172,6 +175,14 @@ const AIPanel = () => {
       <AIRecommendationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        stockName="삼성전자"
+        stockCode="005930"
+      />
+
+      {/* 보조지표 상세 분석 모달 */}
+      <IndicatorAnalysisModal
+        isOpen={isIndicatorModalOpen}
+        onClose={() => setIsIndicatorModalOpen(false)}
         stockName="삼성전자"
         stockCode="005930"
       />
