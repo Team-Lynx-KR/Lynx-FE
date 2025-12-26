@@ -117,32 +117,34 @@ const BuyOrderModal = ({
                 <button
                   onClick={() => setOrderType('market')}
                   className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-colors duration-200 ${
-                    orderType === 'market'
-                      ? 'text-white'
-                      : 'text-dark-300'
+                    orderType === 'market' ? 'text-white' : 'text-dark-300'
                   }`}
-                  style={{
-                    backgroundColor:
-                      orderType === 'market'
-                        ? 'linear-gradient(90deg, #a855f7 0%, #3b82f6 100%)'
-                        : designTokens.colors.dark[700],
-                  }}
+                  style={
+                    orderType === 'market'
+                      ? {
+                          background: 'linear-gradient(90deg, #a855f7 0%, #3b82f6 100%)',
+                        }
+                      : {
+                          backgroundColor: designTokens.colors.dark[700],
+                        }
+                  }
                 >
                   시장가
                 </button>
                 <button
                   onClick={() => setOrderType('limit')}
                   className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-colors duration-200 ${
-                    orderType === 'limit'
-                      ? 'text-white'
-                      : 'text-dark-300'
+                    orderType === 'limit' ? 'text-white' : 'text-dark-300'
                   }`}
-                  style={{
-                    backgroundColor:
-                      orderType === 'limit'
-                        ? 'linear-gradient(90deg, #a855f7 0%, #3b82f6 100%)'
-                        : designTokens.colors.dark[700],
-                  }}
+                  style={
+                    orderType === 'limit'
+                      ? {
+                          background: 'linear-gradient(90deg, #a855f7 0%, #3b82f6 100%)',
+                        }
+                      : {
+                          backgroundColor: designTokens.colors.dark[700],
+                        }
+                  }
                 >
                   지정가
                 </button>
