@@ -1,5 +1,6 @@
 import { designTokens } from '../../design/tokens';
 import { useState } from 'react';
+import logo from '../../assets/img/logo.svg';
 
 const Sidebar = () => {
   const [activeItem, setActiveItem] = useState('홈');
@@ -69,10 +70,8 @@ const Sidebar = () => {
     >
       <div className="flex flex-col h-full">
         {/* 상단 로고 영역 */}
-        <div className="p-5 border-b border-dark-800 flex flex-col items-center">
-          <div className="w-8 h-8 rounded bg-dark-300 flex items-center justify-center">
-            <span className="text-dark-900 font-bold text-md">L</span>
-          </div>
+        <div className="p-4 border-b border-dark-800 flex flex-col items-center">
+          <img src={logo} alt="LYNX Logo" className="w-9 h-9" />
         </div>
 
         {/* 네비게이션 메뉴 */}
