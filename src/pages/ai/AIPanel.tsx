@@ -28,24 +28,24 @@ const AIPanel = () => {
             onClick={() => setIsModalOpen(true)}
           >
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-semibold text-dark-100">AI 매매 추천</h3>
+              <h3 className="text-base font-semibold text-dark-100">AI 추천</h3>
             </div>
             {/* 별 아이콘 */}
             <svg className="w-4 h-4 text-warning-400" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
           </div>
-          <button
-            onClick={() => {
-              setIsBuyOrderModalOpen(true);
-            }}
-            className="w-full px-4 py-3 bg-error-600 hover:bg-error-700 text-white rounded-lg font-semibold transition-colors duration-200 mb-3"
+          <div
+            className="flex items-center justify-between mb-2"
+            onClick={() => setIsModalOpen(true)}
           >
-            매수
-          </button>
-          <div className="text-sm text-dark-300 mb-2" onClick={() => setIsModalOpen(true)}>
-            <span className="text-dark-400">신뢰도 </span>
-            <span className="font-semibold text-dark-100">78%</span>
+            <div className="flex items-center">
+              <span className="text-sm font-semibold rounded">삼성전자</span>
+            </div>
+            <div className="text-sm text-dark-300">
+              <span className="text-dark-400">신뢰도 </span>
+              <span className="font-semibold text-dark-100">78%</span>
+            </div>
           </div>
           {/* 진행 바 */}
           <div
@@ -60,9 +60,20 @@ const AIPanel = () => {
               }}
             />
           </div>
-          <p className="text-xs text-dark-400 leading-relaxed" onClick={() => setIsModalOpen(true)}>
+          <p
+            className="text-xs text-dark-400 leading-relaxed mb-3"
+            onClick={() => setIsModalOpen(true)}
+          >
             RSI 과매도 구간 진입, 거래량 급증, 긍정 뉴스 3건 감지
           </p>
+          <button
+            onClick={() => {
+              setIsBuyOrderModalOpen(true);
+            }}
+            className="w-full px-4 py-3 bg-error-600 hover:bg-error-700 text-white rounded-lg font-semibold transition-colors duration-200"
+          >
+            매수
+          </button>
         </div>
 
         {/* 보조지표 분석 */}
