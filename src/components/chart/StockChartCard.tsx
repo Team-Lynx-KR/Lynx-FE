@@ -9,6 +9,7 @@ interface StockChartCardProps {
   change: number;
   changePercent: number;
   isUp: boolean; // 상승(true) 또는 하락(false)
+  onClick?: (orderType: 'buy' | 'sell') => void;
 }
 
 const StockChartCard = ({
@@ -18,6 +19,7 @@ const StockChartCard = ({
   change,
   changePercent,
   isUp,
+  onClick,
 }: StockChartCardProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -110,10 +112,22 @@ const StockChartCard = ({
   const changeColor = isUp ? 'text-error-500' : 'text-info-500';
   const changeSign = isUp ? '+' : '';
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // 차트 영역 클릭은 무시
+    if ((e.target as HTMLElement).closest('[data-chart-container]')) {
+      return;
+    }
+    // 클릭 시 매수 모달 열기
+    if (onClick) {
+      onClick('buy');
+    }
+  };
+
   return (
     <div
-      className="rounded-lg border border-dark-800 p-4 flex flex-col"
+      className="rounded-lg border border-dark-800 p-4 flex flex-col cursor-pointer hover:opacity-90 transition-opacity duration-200"
       style={{ backgroundColor: designTokens.colors.dark[800] }}
+      onClick={handleCardClick}
     >
       <div className="mb-3">
         <div className="flex items-center justify-between mb-1">
@@ -132,6 +146,7 @@ const StockChartCard = ({
       </div>
       <div
         ref={chartContainerRef}
+        data-chart-container
         className="flex-1 w-full min-h-0"
         style={{
           position: 'relative',

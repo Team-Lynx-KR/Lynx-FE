@@ -1,5 +1,6 @@
 import { designTokens } from '../../design/tokens';
 import { useState } from 'react';
+import logo from '../../assets/img/logo.svg';
 
 const Sidebar = () => {
   const [activeItem, setActiveItem] = useState('홈');
@@ -7,7 +8,6 @@ const Sidebar = () => {
   const menuItems = [
     { id: '메인', label: '메인', icon: 'main' },
     { id: '관심', label: '관심', icon: 'star' },
-    { id: '트레이딩', label: '트레이딩', icon: 'trading' },
     { id: '최근', label: '최근', icon: 'recently' },
   ];
 
@@ -35,17 +35,6 @@ const Sidebar = () => {
             />
           </svg>
         );
-      case 'trading':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-            />
-          </svg>
-        );
       case 'recently':
         return (
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,10 +58,8 @@ const Sidebar = () => {
     >
       <div className="flex flex-col h-full">
         {/* 상단 로고 영역 */}
-        <div className="p-5 border-b border-dark-800 flex flex-col items-center">
-          <div className="w-8 h-8 rounded bg-dark-300 flex items-center justify-center">
-            <span className="text-dark-900 font-bold text-md">L</span>
-          </div>
+        <div className="p-4 border-b border-dark-800 flex flex-col items-center">
+          <img src={logo} alt="LYNX Logo" className="w-9 h-9" />
         </div>
 
         {/* 네비게이션 메뉴 */}
