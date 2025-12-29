@@ -4,12 +4,12 @@ interface PrivacyModalProps {
 
 const PrivacyModal = ({ onClose }: PrivacyModalProps) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-dark-800 rounded-xl w-full max-w-2xl max-h-[80vh] p-8 relative flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-2xl max-h-[80vh] p-10 relative flex flex-col border border-dark-700 shadow-2xl">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-dark-400 hover:text-white transition-colors z-10"
+          className="absolute top-5 right-5 text-dark-400 hover:text-white transition-colors z-10"
         >
           <svg
             className="w-6 h-6"
@@ -27,10 +27,10 @@ const PrivacyModal = ({ onClose }: PrivacyModalProps) => {
         </button>
 
         {/* Title */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center border border-purple-500/30">
             <svg
-              className="w-5 h-5 text-purple-400"
+              className="w-6 h-6 text-purple-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -43,11 +43,11 @@ const PrivacyModal = ({ onClose }: PrivacyModalProps) => {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-white">개인정보처리방침</h2>
+          <h2 className="text-3xl font-bold text-white">개인정보처리방침</h2>
         </div>
 
         {/* Effective Date */}
-        <p className="text-sm text-dark-500 mb-6">시행일: 2025년 1월 1일</p>
+        <p className="text-sm text-dark-500 mb-8">시행일: 2025년 1월 1일</p>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin">
@@ -168,7 +168,7 @@ const PrivacyModal = ({ onClose }: PrivacyModalProps) => {
         <div className="mt-6 pt-6 border-t border-dark-700">
           <button
             onClick={onClose}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transition-all"
+            className="w-full py-3.5 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:via-purple-600 hover:to-blue-600 transition-all shadow-lg shadow-purple-500/20"
           >
             확인
           </button>
