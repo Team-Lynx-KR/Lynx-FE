@@ -64,6 +64,42 @@ const Login = () => {
     setPasswordError(validatePassword(value));
   };
 
+  const handleLogin = () => {
+    console.log('[Login] email:', email);
+    console.log('[Login] password:', password ? '***' : 'empty');
+
+    // 모든 필드 입력 확인
+    if (!email || !password) {
+      console.log('[Login] 필드 누락:', { email: !!email, password: !!password });
+      setErrorMessage('이메일과 비밀번호를 모두 입력해주세요.');
+      setShowErrorModal(true);
+      return;
+    }
+
+    // 유효성 검사 재확인
+    const emailValidation = validateEmail(email);
+    const passwordValidation = validatePassword(password);
+    console.log('[Login] 유효성 검사 결과:', {
+      emailError: emailValidation || '통과',
+      passwordError: passwordValidation || '통과',
+    });
+
+    if (emailValidation || passwordValidation) {
+      console.log('[Login] 유효성 검사 실패');
+      setEmailError(emailValidation);
+      setPasswordError(passwordValidation);
+      setErrorMessage('입력한 정보를 확인해주세요.');
+      setShowErrorModal(true);
+      return;
+    }
+
+    // TODO: 실제 API 호출로 교체
+    // 여기서는 임시로 성공/실패 시뮬레이션
+    // 로컬 스토리지에 인증 상태 저장
+    // 성공 시 대시보드로 이동
+    navigate('/dashboard');
+  };
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-black relative p-8">
       {/* Ambient Light Effects */}
@@ -294,7 +330,11 @@ const Login = () => {
           </div>
 
           {/* Login Button */}
-          <button className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transition-all mb-6">
+          <button
+            type="button"
+            onClick={handleLogin}
+            className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transition-all mb-6"
+          >
             로그인
           </button>
 
@@ -353,6 +393,9 @@ const Login = () => {
       {showForgotPassword && <ForgotPasswordModal onClose={() => setShowForgotPassword(false)} />}
       {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
       {showPrivacy && <PrivacyModal onClose={() => setShowPrivacy(false)} />}
+      {showErrorModal && (
+        <ErrorModal onClose={() => setShowErrorModal(false)} message={errorMessage} />
+      )}
     </div>
   );
 };

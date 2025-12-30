@@ -130,8 +130,8 @@ const Signup = () => {
 
     // TODO: 실제 API 호출로 교체
     // 여기서는 임시로 성공/실패 시뮬레이션
-    // 성공 시 대시보드로 이동
-    navigate('/');
+    // 성공 시 로그인 화면으로 이동
+    navigate('/login');
   };
 
   return (

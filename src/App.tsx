@@ -7,8 +7,8 @@ import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 
 function App() {
-  // 임시: 로그인 상태 확인 (실제로는 인증 상태를 확인해야 함)
-  const isAuthenticated = false; // TODO: 실제 인증 상태로 교체
+  // 로컬 스토리지에서 인증 상태 확인
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
 
   return (
     <BrowserRouter>
@@ -19,31 +19,34 @@ function App() {
 
         {/* 메인 대시보드 (인증 필요) */}
         <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <div
-                className="flex h-screen w-screen overflow-hidden"
-                style={{ backgroundColor: designTokens.colors.dark[900] }}
-              >
-                {/* 사이드바 */}
-                <Sidebar />
+          path="/dashboard"
+          element={(() => {
+            if (isAuthenticated) {
+              return (
+                <div
+                  className="flex h-screen w-screen overflow-hidden"
+                  style={{ backgroundColor: designTokens.colors.dark[900] }}
+                >
+                  {/* 사이드바 */}
+                  <Sidebar />
 
-                {/* 컨텐츠 영역 */}
-                <div className="flex flex-1 flex-col overflow-hidden">
-                  {/* 헤더 */}
-                  <Header />
+                  {/* 컨텐츠 영역 */}
+                  <div className="flex flex-1 flex-col overflow-hidden">
+                    {/* 헤더 */}
+                    <Header />
 
-                  {/* 대시보드 */}
-                  <main className="flex-1 overflow-auto scrollbar-thin">
-                    <Dashboard />
-                  </main>
+                    {/* 대시보드 */}
+                    <main className="flex-1 overflow-auto scrollbar-thin">
+                      <Dashboard />
+                    </main>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
+              );
+            } else {
+              console.log('[App] 인증되지 않음, 로그인으로 리다이렉트');
+              return <Navigate to="/login" replace />;
+            }
+          })()}
         />
 
         {/* 기본 리다이렉트 */}
