@@ -1,4 +1,5 @@
 import { designTokens } from '../../../design/tokens';
+import logo from '@/assets/img/logo.svg';
 
 const Footer = () => {
   return (
@@ -11,26 +12,7 @@ const Footer = () => {
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div
-                className="w-8 h-8 rounded-md flex items-center justify-center"
-                style={{
-                  background: 'linear-gradient(135deg, #a855f7 0%, #3b82f6 100%)',
-                }}
-              >
-                <svg
-                  className="w-5 h-5 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              </div>
+              <img src={logo} alt="LYNX Logo" className="w-8 h-8" />
               <span className="text-xl font-bold text-white">LYNX</span>
             </div>
             <p className="text-gray-400 mb-4">AI와 함께하는 차세대 트레이딩 플랫폼</p>
