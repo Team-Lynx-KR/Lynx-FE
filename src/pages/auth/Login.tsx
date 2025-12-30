@@ -13,6 +13,52 @@ const Login = () => {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  // 이메일 유효성 검사
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!value) {
+      return '';
+    }
+    if (!emailRegex.test(value)) {
+      return '올바른 이메일 형식이 아닙니다. (예: example@email.com)';
+    }
+    return '';
+  };
+
+  // 비밀번호 유효성 검사
+  const validatePassword = (value: string) => {
+    if (!value) {
+      return '';
+    }
+    if (value.length < 8) {
+      return '비밀번호는 8자 이상이어야 합니다.';
+    }
+    const hasLetter = /[a-zA-Z]/.test(value);
+    const hasNumber = /[0-9]/.test(value);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+    
+    if (!hasLetter || !hasNumber || !hasSpecial) {
+      return '비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다.';
+    }
+    return '';
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    setEmailError(validateEmail(value));
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    setPasswordError(validatePassword(value));
+  };
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-black relative p-8">
@@ -128,7 +174,7 @@ const Login = () => {
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                 <svg
-                  className="w-5 h-5 text-dark-500 filter-none"
+                  className="w-5 h-5 text-white filter-none"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -140,10 +186,19 @@ const Login = () => {
               </div>
               <input
                 type="email"
+                value={email}
+                onChange={handleEmailChange}
                 placeholder="example@email.com"
-                className="w-full pl-10 pr-4 py-3 bg-[#262626]/60 backdrop-blur-sm border border-white/10 rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                className={`w-full pl-10 pr-4 py-3 bg-[#262626]/60 backdrop-blur-sm border rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 transition-all ${
+                  emailError
+                    ? 'border-red-500 focus:ring-red-500/50 focus:border-red-500/50'
+                    : 'border-white/10 focus:ring-purple-500/50 focus:border-purple-500/50'
+                }`}
               />
             </div>
+            {emailError && (
+              <p className="mt-2 text-sm text-red-500">{emailError}</p>
+            )}
           </div>
 
           {/* Password Input */}
@@ -152,7 +207,7 @@ const Login = () => {
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                 <svg
-                  className="w-5 h-5 text-dark-500 filter-none"
+                  className="w-5 h-5 text-white filter-none"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -164,8 +219,14 @@ const Login = () => {
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={handlePasswordChange}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-12 py-3 bg-[#262626]/60 backdrop-blur-sm border border-white/10 rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                className={`w-full pl-10 pr-12 py-3 bg-[#262626]/60 backdrop-blur-sm border rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 transition-all ${
+                  passwordError
+                    ? 'border-red-500 focus:ring-red-500/50 focus:border-red-500/50'
+                    : 'border-white/10 focus:ring-purple-500/50 focus:border-purple-500/50'
+                }`}
               />
               <button
                 type="button"
@@ -210,6 +271,9 @@ const Login = () => {
                 )}
               </button>
             </div>
+            {passwordError && (
+              <p className="mt-2 text-sm text-red-500">{passwordError}</p>
+            )}
           </div>
 
           {/* Login Options */}

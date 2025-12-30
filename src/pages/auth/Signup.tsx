@@ -11,6 +11,94 @@ const Signup = () => {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+
+  // 이름 유효성 검사
+  const validateName = (value: string) => {
+    if (!value) {
+      return '';
+    }
+    if (value.length < 2) {
+      return '이름은 2자 이상이어야 합니다.';
+    }
+    return '';
+  };
+
+  // 이메일 유효성 검사
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!value) {
+      return '';
+    }
+    if (!emailRegex.test(value)) {
+      return '올바른 이메일 형식이 아닙니다. (예: example@email.com)';
+    }
+    return '';
+  };
+
+  // 비밀번호 유효성 검사
+  const validatePassword = (value: string) => {
+    if (!value) {
+      return '';
+    }
+    if (value.length < 8) {
+      return '비밀번호는 8자 이상이어야 합니다.';
+    }
+    const hasLetter = /[a-zA-Z]/.test(value);
+    const hasNumber = /[0-9]/.test(value);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+    
+    if (!hasLetter || !hasNumber || !hasSpecial) {
+      return '비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다.';
+    }
+    return '';
+  };
+
+  // 비밀번호 확인 유효성 검사
+  const validateConfirmPassword = (value: string, passwordValue: string) => {
+    if (!value) {
+      return '';
+    }
+    if (value !== passwordValue) {
+      return '비밀번호가 일치하지 않습니다.';
+    }
+    return '';
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setName(value);
+    setNameError(validateName(value));
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    setEmailError(validateEmail(value));
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    setPasswordError(validatePassword(value));
+    // 비밀번호가 변경되면 확인 비밀번호도 재검사
+    if (confirmPassword) {
+      setConfirmPasswordError(validateConfirmPassword(confirmPassword, value));
+    }
+  };
+
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setConfirmPassword(value);
+    setConfirmPasswordError(validateConfirmPassword(value, password));
+  };
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-black relative p-8">
@@ -124,7 +212,7 @@ const Signup = () => {
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                 <svg
-                  className="w-5 h-5 text-dark-500 filter-none"
+                  className="w-5 h-5 text-white filter-none"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -136,10 +224,19 @@ const Signup = () => {
               </div>
               <input
                 type="text"
+                value={name}
+                onChange={handleNameChange}
                 placeholder="홍길동"
-                className="w-full pl-10 pr-4 py-3 bg-[#262626]/60 backdrop-blur-sm border border-white/10 rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                className={`w-full pl-10 pr-4 py-3 bg-[#262626]/60 backdrop-blur-sm border rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 transition-all ${
+                  nameError
+                    ? 'border-red-500 focus:ring-red-500/50 focus:border-red-500/50'
+                    : 'border-white/10 focus:ring-purple-500/50 focus:border-purple-500/50'
+                }`}
               />
             </div>
+            {nameError && (
+              <p className="mt-2 text-sm text-red-500">{nameError}</p>
+            )}
           </div>
 
           {/* Email Input */}
@@ -148,7 +245,7 @@ const Signup = () => {
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                 <svg
-                  className="w-5 h-5 text-dark-500 filter-none"
+                  className="w-5 h-5 text-white filter-none"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -160,10 +257,19 @@ const Signup = () => {
               </div>
               <input
                 type="email"
+                value={email}
+                onChange={handleEmailChange}
                 placeholder="example@email.com"
-                className="w-full pl-10 pr-4 py-3 bg-[#262626]/60 backdrop-blur-sm border border-white/10 rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                className={`w-full pl-10 pr-4 py-3 bg-[#262626]/60 backdrop-blur-sm border rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 transition-all ${
+                  emailError
+                    ? 'border-red-500 focus:ring-red-500/50 focus:border-red-500/50'
+                    : 'border-white/10 focus:ring-purple-500/50 focus:border-purple-500/50'
+                }`}
               />
             </div>
+            {emailError && (
+              <p className="mt-2 text-sm text-red-500">{emailError}</p>
+            )}
           </div>
 
           {/* Password Input */}
@@ -172,7 +278,7 @@ const Signup = () => {
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                 <svg
-                  className="w-5 h-5 text-dark-500 filter-none"
+                  className="w-5 h-5 text-white filter-none"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -184,8 +290,14 @@ const Signup = () => {
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={handlePasswordChange}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-12 py-3 bg-[#262626]/60 backdrop-blur-sm border border-white/10 rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                className={`w-full pl-10 pr-12 py-3 bg-[#262626]/60 backdrop-blur-sm border rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 transition-all ${
+                  passwordError
+                    ? 'border-red-500 focus:ring-red-500/50 focus:border-red-500/50'
+                    : 'border-white/10 focus:ring-purple-500/50 focus:border-purple-500/50'
+                }`}
               />
               <button
                 type="button"
@@ -222,6 +334,9 @@ const Signup = () => {
                 )}
               </button>
             </div>
+            {passwordError && (
+              <p className="mt-2 text-sm text-red-500">{passwordError}</p>
+            )}
           </div>
 
           {/* Confirm Password Input */}
@@ -230,7 +345,7 @@ const Signup = () => {
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                 <svg
-                  className="w-5 h-5 text-dark-500 filter-none"
+                  className="w-5 h-5 text-white filter-none"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -242,8 +357,14 @@ const Signup = () => {
               </div>
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={handleConfirmPasswordChange}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-12 py-3 bg-[#262626]/60 backdrop-blur-sm border border-white/10 rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                className={`w-full pl-10 pr-12 py-3 bg-[#262626]/60 backdrop-blur-sm border rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 transition-all ${
+                  confirmPasswordError
+                    ? 'border-red-500 focus:ring-red-500/50 focus:border-red-500/50'
+                    : 'border-white/10 focus:ring-purple-500/50 focus:border-purple-500/50'
+                }`}
               />
               <button
                 type="button"
@@ -276,6 +397,9 @@ const Signup = () => {
                 )}
               </button>
             </div>
+            {confirmPasswordError && (
+              <p className="mt-2 text-sm text-red-500">{confirmPasswordError}</p>
+            )}
           </div>
 
           {/* Signup Button */}
