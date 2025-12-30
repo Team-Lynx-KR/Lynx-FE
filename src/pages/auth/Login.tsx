@@ -126,13 +126,14 @@ const Login = () => {
           <div className="mb-6">
             <label className="block text-sm font-medium text-dark-300 mb-2">이메일</label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                 <svg
-                  className="w-5 h-5 text-white"
+                  className="w-5 h-5 text-dark-500 filter-none"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth={1.5}
+                  strokeWidth={2}
                   viewBox="0 0 24 24"
+                  style={{ shapeRendering: 'crispEdges' }}
                 >
                   <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
@@ -149,13 +150,14 @@ const Login = () => {
           <div className="mb-6">
             <label className="block text-sm font-medium text-dark-300 mb-2">비밀번호</label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                 <svg
-                  className="w-5 h-5 text-white"
+                  className="w-5 h-5 text-dark-500 filter-none"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth={1.5}
+                  strokeWidth={2}
                   viewBox="0 0 24 24"
+                  style={{ shapeRendering: 'crispEdges' }}
                 >
                   <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
@@ -168,15 +170,16 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-white/80 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-white/80 transition-colors z-10"
               >
                 {showPassword ? (
                   <svg
-                    className="w-5 h-5"
+                    className="w-5 h-5 filter-none"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={2.5}
                     viewBox="0 0 24 24"
+                    style={{ shapeRendering: 'crispEdges' }}
                   >
                     <path
                       strokeLinecap="round"
@@ -186,11 +189,12 @@ const Login = () => {
                   </svg>
                 ) : (
                   <svg
-                    className="w-5 h-5"
+                    className="w-5 h-5 filter-none"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={2.5}
                     viewBox="0 0 24 24"
+                    style={{ shapeRendering: 'crispEdges' }}
                   >
                     <path
                       strokeLinecap="round"
