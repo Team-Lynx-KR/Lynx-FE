@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import TermsModal from '../../components/auth/TermsModal';
 import PrivacyModal from '../../components/auth/PrivacyModal';
+import ErrorModal from '../../components/auth/ErrorModal';
 import logo from '@/assets/img/logo.svg';
 import googleLogo from '../../assets/img/google-logo.svg';
 import kakaoLogo from '../../assets/img/kakao-logo.svg';
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +21,8 @@ const Signup = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // 이름 유효성 검사
   const validateName = (value: string) => {
@@ -54,7 +58,7 @@ const Signup = () => {
     const hasLetter = /[a-zA-Z]/.test(value);
     const hasNumber = /[0-9]/.test(value);
     const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-    
+
     if (!hasLetter || !hasNumber || !hasSpecial) {
       return '비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다.';
     }
@@ -100,6 +104,36 @@ const Signup = () => {
     setConfirmPasswordError(validateConfirmPassword(value, password));
   };
 
+  const handleSignup = () => {
+    // 모든 필드 입력 확인
+    if (!name || !email || !password || !confirmPassword) {
+      setErrorMessage('모든 필드를 입력해주세요.');
+      setShowErrorModal(true);
+      return;
+    }
+
+    // 유효성 검사 재확인
+    const nameValidation = validateName(name);
+    const emailValidation = validateEmail(email);
+    const passwordValidation = validatePassword(password);
+    const confirmPasswordValidation = validateConfirmPassword(confirmPassword, password);
+
+    if (nameValidation || emailValidation || passwordValidation || confirmPasswordValidation) {
+      setNameError(nameValidation);
+      setEmailError(emailValidation);
+      setPasswordError(passwordValidation);
+      setConfirmPasswordError(confirmPasswordValidation);
+      setErrorMessage('입력한 정보를 확인해주세요.');
+      setShowErrorModal(true);
+      return;
+    }
+
+    // TODO: 실제 API 호출로 교체
+    // 여기서는 임시로 성공/실패 시뮬레이션
+    // 성공 시 대시보드로 이동
+    navigate('/');
+  };
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-black relative p-8">
       {/* Ambient Light Effects */}
@@ -142,8 +176,8 @@ const Signup = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="text-2xl font-semibold text-white mb-2">AI 투자 비서</h3>
-                <p className="text-lg text-white/80 leading-relaxed">
+                <h3 className="text-2xl font-semibold text-white">AI 투자 비서</h3>
+                <p className="text-base text-dark-400 leading-relaxed">
                   실시간 뉴스와 보조지표 분석으로 매매 전략 제안
                 </p>
               </div>
@@ -166,8 +200,8 @@ const Signup = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="text-2xl font-semibold text-white mb-2">멀티 차트 대시보드</h3>
-                <p className="text-lg text-white/80 leading-relaxed">
+                <h3 className="text-2xl font-semibold text-white">멀티 차트 대시보드</h3>
+                <p className="text-base text-dark-400 leading-relaxed">
                   커스텀 가능한 차트로 여러 종목 동시 모니터링
                 </p>
               </div>
@@ -190,8 +224,8 @@ const Signup = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="text-2xl font-semibold text-white mb-2">안전한 API 연동</h3>
-                <p className="text-lg text-white/80 leading-relaxed">
+                <h3 className="text-2xl font-semibold text-white">안전한 API 연동</h3>
+                <p className="text-base text-dark-400 leading-relaxed">
                   로컬 저장으로 보안 강화, 서버 전송 없음
                 </p>
               </div>
@@ -234,9 +268,7 @@ const Signup = () => {
                 }`}
               />
             </div>
-            {nameError && (
-              <p className="mt-2 text-sm text-red-500">{nameError}</p>
-            )}
+            {nameError && <p className="mt-2 text-sm text-red-500">{nameError}</p>}
           </div>
 
           {/* Email Input */}
@@ -267,9 +299,7 @@ const Signup = () => {
                 }`}
               />
             </div>
-            {emailError && (
-              <p className="mt-2 text-sm text-red-500">{emailError}</p>
-            )}
+            {emailError && <p className="mt-2 text-sm text-red-500">{emailError}</p>}
           </div>
 
           {/* Password Input */}
@@ -334,9 +364,7 @@ const Signup = () => {
                 )}
               </button>
             </div>
-            {passwordError && (
-              <p className="mt-2 text-sm text-red-500">{passwordError}</p>
-            )}
+            {passwordError && <p className="mt-2 text-sm text-red-500">{passwordError}</p>}
           </div>
 
           {/* Confirm Password Input */}
@@ -403,7 +431,10 @@ const Signup = () => {
           </div>
 
           {/* Signup Button */}
-          <button className="w-full py-3 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:via-purple-600 hover:to-blue-600 transition-all mb-6 shadow-lg shadow-purple-500/20">
+          <button
+            onClick={handleSignup}
+            className="w-full py-3 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:via-purple-600 hover:to-blue-600 transition-all mb-6 shadow-lg shadow-purple-500/20"
+          >
             회원가입
           </button>
 
@@ -461,6 +492,9 @@ const Signup = () => {
       {/* Modals */}
       {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
       {showPrivacy && <PrivacyModal onClose={() => setShowPrivacy(false)} />}
+      {showErrorModal && (
+        <ErrorModal onClose={() => setShowErrorModal(false)} message={errorMessage} />
+      )}
     </div>
   );
 };

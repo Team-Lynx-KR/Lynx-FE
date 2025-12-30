@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ForgotPasswordModal from '../../components/auth/ForgotPasswordModal';
 import TermsModal from '../../components/auth/TermsModal';
 import PrivacyModal from '../../components/auth/PrivacyModal';
+import ErrorModal from '../../components/auth/ErrorModal';
 import logo from '@/assets/img/logo.svg';
 import googleLogo from '../../assets/img/google-logo.svg';
 import kakaoLogo from '../../assets/img/kakao-logo.svg';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
@@ -17,6 +19,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // 이메일 유효성 검사
   const validateEmail = (value: string) => {
@@ -41,7 +45,7 @@ const Login = () => {
     const hasLetter = /[a-zA-Z]/.test(value);
     const hasNumber = /[0-9]/.test(value);
     const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-    
+
     if (!hasLetter || !hasNumber || !hasSpecial) {
       return '비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다.';
     }
@@ -96,16 +100,14 @@ const Login = () => {
                   viewBox="0 0 24 24"
                 >
                   <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
                     strokeWidth={2}
                     d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
                   />
                 </svg>
               </div>
               <div>
-                <h3 className="text-2xl font-semibold text-white mb-2">AI 투자 비서</h3>
-                <p className="text-lg text-white/80 leading-relaxed">
+                <h3 className="text-2xl font-semibold text-white">AI 투자 비서</h3>
+                <p className="text-base text-dark-400 leading-relaxed">
                   실시간 뉴스와 보조지표 분석으로 매매 전략 제안
                 </p>
               </div>
@@ -128,8 +130,8 @@ const Login = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="text-2xl font-semibold text-white mb-2">멀티 차트 대시보드</h3>
-                <p className="text-lg text-white/80 leading-relaxed">
+                <h3 className="text-2xl font-semibold text-white">멀티 차트 대시보드</h3>
+                <p className="text-base text-dark-400 leading-relaxed">
                   커스텀 가능한 차트로 여러 종목 동시 모니터링
                 </p>
               </div>
@@ -152,8 +154,8 @@ const Login = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="text-2xl font-semibold text-white mb-2">안전한 API 연동</h3>
-                <p className="text-lg text-white/80 leading-relaxed">
+                <h3 className="text-2xl font-semibold text-white">안전한 API 연동</h3>
+                <p className="text-base text-dark-400 leading-relaxed">
                   로컬 저장으로 보안 강화, 서버 전송 없음
                 </p>
               </div>
@@ -196,9 +198,7 @@ const Login = () => {
                 }`}
               />
             </div>
-            {emailError && (
-              <p className="mt-2 text-sm text-red-500">{emailError}</p>
-            )}
+            {emailError && <p className="mt-2 text-sm text-red-500">{emailError}</p>}
           </div>
 
           {/* Password Input */}
@@ -271,9 +271,7 @@ const Login = () => {
                 )}
               </button>
             </div>
-            {passwordError && (
-              <p className="mt-2 text-sm text-red-500">{passwordError}</p>
-            )}
+            {passwordError && <p className="mt-2 text-sm text-red-500">{passwordError}</p>}
           </div>
 
           {/* Login Options */}
