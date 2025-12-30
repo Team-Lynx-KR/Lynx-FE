@@ -37,25 +37,6 @@ const HeroSection = () => {
         기존 HTS의 불편함을 없애고, AI 비서와 함께 매매하는 전문 트레이더를 위한 플랫폼
       </p>
 
-      {/* CTA Buttons */}
-      <button
-        onClick={() => navigate('/signup')}
-        className="px-8 py-4 rounded-lg text-white font-semibold transition-all hover:opacity-90 flex items-center gap-2"
-        style={{
-          background: 'linear-gradient(135deg, #a855f7 0%, #3b82f6 100%)',
-        }}
-      >
-        다운로드 하기
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-          />
-        </svg>
-      </button>
-
       <StatsSection />
     </section>
   );
