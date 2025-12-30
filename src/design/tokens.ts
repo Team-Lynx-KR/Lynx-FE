@@ -23,6 +23,19 @@ export const designTokens = {
     warning: '#f59e0b',
     error: '#ef4444',
     info: '#3b82f6',
+    // Purple: 보라색 그라데이션 (LYNX 브랜드 색상)
+    purple: {
+      50: '#faf5ff',
+      100: '#f3e8ff',
+      200: '#e9d5ff',
+      300: '#d8b4fe',
+      400: '#c084fc',
+      500: '#a855f7',
+      600: '#9333ea',
+      700: '#7e22ce',
+      800: '#6b21a8',
+      900: '#581c87',
+    },
   },
 
   // 타이포그래피
