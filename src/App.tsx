@@ -5,6 +5,8 @@ import { designTokens } from './design/tokens';
 import Sidebar from './components/layout/Sidebar';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
+import Onboarding from './pages/onboarding/Onboarding';
+import Landing from './pages/onboarding/Landing';
 
 function App() {
   // 로컬 스토리지에서 인증 상태 확인
@@ -13,6 +15,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* 랜딩 페이지 */}
+        <Route path="/" element={<Landing />} />
+
+        {/* 온보딩 페이지 */}
+        <Route path="/onboarding" element={<Onboarding />} />
+
         {/* 인증 페이지 */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -49,8 +57,8 @@ function App() {
           })()}
         />
 
-        {/* 기본 리다이렉트 */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* 404 - 랜딩 페이지로 리다이렉트 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

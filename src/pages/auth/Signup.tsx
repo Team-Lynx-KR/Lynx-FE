@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import TermsModal from '../../components/auth/TermsModal';
-import PrivacyModal from '../../components/auth/PrivacyModal';
-import ErrorModal from '../../components/auth/ErrorModal';
+import TermsModal from './modal/TermsModal';
+import PrivacyModal from './modal/PrivacyModal';
+import ErrorModal from './modal/ErrorModal';
 import logo from '@/assets/img/logo.svg';
 import googleLogo from '../../assets/img/google-logo.svg';
 import kakaoLogo from '../../assets/img/kakao-logo.svg';
