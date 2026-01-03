@@ -1,5 +1,4 @@
-import { designTokens } from '../../design/tokens';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -9,7 +8,17 @@ interface SettingsModalProps {
 const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const [notifications, setNotifications] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [autoLogin, setAutoLogin] = useState(true);
+  // localStorage에서 자동 로그인 설정 읽기
+  const [autoLogin, setAutoLogin] = useState(() => localStorage.getItem('keepLoggedIn') === 'true');
+
+  // 모달이 열릴 때마다 localStorage에서 최신 값 읽기
+  useEffect(() => {
+    if (isOpen) {
+      const keepLoggedIn = localStorage.getItem('keepLoggedIn') === 'true';
+      setAutoLogin(keepLoggedIn);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -110,7 +119,15 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           </button>
           <button
             onClick={() => {
-              // TODO: 설정 저장 로직
+              // 자동 로그인 설정 저장
+              if (autoLogin) {
+                localStorage.setItem('keepLoggedIn', 'true');
+                console.log('[autologin] 설정 모달에서 자동 로그인 활성화');
+              } else {
+                localStorage.removeItem('keepLoggedIn');
+                console.log('[autologin] 설정 모달에서 자동 로그인 비활성화');
+              }
+              // TODO: 다른 설정들도 저장
               onClose();
             }}
             className="flex-1 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors duration-200"
