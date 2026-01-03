@@ -1,9 +1,46 @@
 import { designTokens } from '../../design/tokens';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../../assets/img/logo.svg';
 
 const Sidebar = () => {
-  const [activeItem, setActiveItem] = useState('홈');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [favoriteStocks, setFavoriteStocks] = useState<Array<{ name: string; code: string; price: number; changePercent: number }>>([]);
+
+  // 현재 경로에 따라 activeItem 설정
+  const getActiveItem = () => {
+    if (location.pathname === '/favorites') return '관심';
+    if (location.pathname === '/dashboard') return '메인';
+    return '메인';
+  };
+
+  const [activeItem, setActiveItem] = useState(getActiveItem());
+
+  // 경로 변경 감지
+  useEffect(() => {
+    setActiveItem(getActiveItem());
+  }, [location.pathname]);
+
+  // 관심 종목 로드 (배지용)
+  useEffect(() => {
+    const loadFavorites = () => {
+      const favorites = JSON.parse(localStorage.getItem('favoriteStocks') || '[]');
+      setFavoriteStocks(favorites);
+    };
+
+    loadFavorites();
+
+    // 관심 종목 변경 이벤트 리스너
+    const handleFavoriteChange = () => {
+      loadFavorites();
+    };
+
+    window.addEventListener('favoriteStocksChanged', handleFavoriteChange);
+    return () => {
+      window.removeEventListener('favoriteStocksChanged', handleFavoriteChange);
+    };
+  }, []);
 
   const menuItems = [
     { id: '메인', label: '메인', icon: 'main' },
@@ -64,20 +101,34 @@ const Sidebar = () => {
 
         {/* 네비게이션 메뉴 */}
         <nav className="flex-1 py-2">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveItem(item.id)}
-              className={`w-full flex flex-col items-center gap-1 px-2 py-3 transition-colors duration-200 ${
-                activeItem === item.id
-                  ? 'text-dark-100 bg-dark-800'
-                  : 'text-dark-400 hover:text-dark-100 hover:bg-dark-800'
-              }`}
-            >
-              {getIcon(item.icon)}
-              <span className="text-xs text-center leading-tight">{item.label}</span>
-            </button>
-          ))}
+          {menuItems.map((item) => {
+            const handleClick = () => {
+              if (item.id === '메인') {
+                navigate('/dashboard');
+              } else if (item.id === '관심') {
+                navigate('/favorites');
+              }
+              // 최근은 아직 구현 안됨
+            };
+
+            return (
+              <button
+                key={item.id}
+                onClick={handleClick}
+                className={`relative w-full flex flex-col items-center gap-1 px-2 py-3 transition-colors duration-200 ${
+                  activeItem === item.id
+                    ? 'text-dark-100 bg-dark-800'
+                    : 'text-dark-400 hover:text-dark-100 hover:bg-dark-800'
+                }`}
+              >
+                {getIcon(item.icon)}
+                <span className="text-xs text-center leading-tight">{item.label}</span>
+                {item.id === '관심' && favoriteStocks.length > 0 && (
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-error-500 rounded-full"></span>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
         {/* 하단 유틸리티 */}

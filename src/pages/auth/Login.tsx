@@ -96,6 +96,12 @@ const Login = () => {
     // TODO: 실제 API 호출로 교체
     // 여기서는 임시로 성공/실패 시뮬레이션
     // 로컬 스토리지에 인증 상태 저장
+    localStorage.setItem('isAuthenticated', 'true');
+    console.log('[Login] 인증 상태 저장 완료, 대시보드로 이동');
+    
+    // 커스텀 이벤트 발생시켜 App 컴포넌트에 인증 상태 변경 알림
+    window.dispatchEvent(new Event('authStateChanged'));
+    
     // 성공 시 대시보드로 이동
     navigate('/dashboard');
   };

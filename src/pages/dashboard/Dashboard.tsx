@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import StockChartCard from '../../components/chart/StockChartCard';
-import AIPanel from '../ai/AIPanel';
+import IndicatorCard from '../../components/dashboard/ReportCard';
+import AIPanelCompact from '../../components/dashboard/AIPanelCompact';
+import NewsPanel from '../../components/dashboard/NewsPanel';
 import BuyOrderModal from '../../components/modal/BuyOrderModal';
 
 const Dashboard = () => {
@@ -13,9 +15,10 @@ const Dashboard = () => {
   } | null>(null);
 
   return (
-    <div className="flex h-full w-full gap-4 p-4">
-      {/* 좌측: 멀티 차트 대시보드 (3x3 그리드) */}
-      <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-2">
+    <div className="flex h-full w-full gap-4 p-4 overflow-hidden">
+      {/* 중앙: 멀티 차트 대시보드 (3x3 그리드) */}
+      <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-2 min-w-0">
+        {/* 1행: 그래프 2개, 보조지표 분석 1개 */}
         <StockChartCard
           name="삼성전자"
           code="005930"
@@ -50,6 +53,9 @@ const Dashboard = () => {
             })
           }
         />
+        <IndicatorCard stockName="삼성전자" />
+
+        {/* 2행: 그래프 2개, 보조지표 분석 1개 */}
         <StockChartCard
           name="NAVER"
           code="035420"
@@ -84,6 +90,9 @@ const Dashboard = () => {
             })
           }
         />
+        <IndicatorCard stockName="NAVER" />
+
+        {/* 3행: 그래프 2개, 보조지표 분석 1개 */}
         <StockChartCard
           name="카카오"
           code="035720"
@@ -118,62 +127,17 @@ const Dashboard = () => {
             })
           }
         />
-        <StockChartCard
-          name="셀트리온"
-          code="068270"
-          price={185000}
-          change={3500}
-          changePercent={1.93}
-          isUp={true}
-          onClick={(orderType) =>
-            setSelectedStock({
-              name: '셀트리온',
-              code: '068270',
-              price: 185000,
-              changePercent: 1.93,
-              orderType,
-            })
-          }
-        />
-        <StockChartCard
-          name="포스코"
-          code="005490"
-          price={425000}
-          change={-8500}
-          changePercent={-1.96}
-          isUp={false}
-          onClick={(orderType) =>
-            setSelectedStock({
-              name: '포스코',
-              code: '005490',
-              price: 425000,
-              changePercent: -1.96,
-              orderType,
-            })
-          }
-        />
-        <StockChartCard
-          name="기아"
-          code="000270"
-          price={112000}
-          change={2100}
-          changePercent={1.91}
-          isUp={true}
-          onClick={(orderType) =>
-            setSelectedStock({
-              name: '기아',
-              code: '000270',
-              price: 112000,
-              changePercent: 1.91,
-              orderType,
-            })
-          }
-        />
+        <IndicatorCard stockName="LG에너지솔루션" />
       </div>
 
-      {/* 우측: AI 투자 비서 */}
-      <div className="w-96">
-        <AIPanel />
+      {/* 우측: AI (상단), 뉴스 (하단) */}
+      <div className="w-80 flex flex-col gap-4 h-full overflow-hidden">
+        <div className="flex-shrink-0" style={{ height: 'calc(50% - 8px)' }}>
+          <AIPanelCompact />
+        </div>
+        <div className="flex-shrink-0 flex-1 min-h-0" style={{ height: 'calc(50% - 8px)' }}>
+          <NewsPanel />
+        </div>
       </div>
 
       {/* 주문 모달 */}
