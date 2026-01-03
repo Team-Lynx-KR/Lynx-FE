@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ForgotPasswordModal from './modal/ForgotPasswordModal';
 import TermsModal from './modal/TermsModal';
 import PrivacyModal from './modal/PrivacyModal';
 import ErrorModal from './modal/ErrorModal';
+import { login } from '@/api/auth';
 import logo from '@/assets/img/logo.svg';
 import googleLogo from '../../assets/img/google-logo.svg';
 import kakaoLogo from '../../assets/img/kakao-logo.svg';
@@ -21,6 +23,7 @@ const Login = () => {
   const [passwordError, setPasswordError] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // 이메일 유효성 검사
   const validateEmail = (value: string) => {
@@ -64,7 +67,7 @@ const Login = () => {
     setPasswordError(validatePassword(value));
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     console.log('[Login] email:', email);
     console.log('[Login] password:', password ? '***' : 'empty');
 
@@ -93,17 +96,53 @@ const Login = () => {
       return;
     }
 
-    // TODO: 실제 API 호출로 교체
-    // 여기서는 임시로 성공/실패 시뮬레이션
-    // 로컬 스토리지에 인증 상태 저장
-    localStorage.setItem('isAuthenticated', 'true');
-    console.log('[Login] 인증 상태 저장 완료, 대시보드로 이동');
-    
-    // 커스텀 이벤트 발생시켜 App 컴포넌트에 인증 상태 변경 알림
-    window.dispatchEvent(new Event('authStateChanged'));
-    
-    // 성공 시 대시보드로 이동
-    navigate('/dashboard');
+    // API 호출
+    setIsLoading(true);
+    try {
+      const response = await login({
+        email,
+        password,
+      });
+
+      // 토큰 저장
+      if (response.accessToken) {
+        localStorage.setItem('token', response.accessToken);
+        console.log('[Login] 액세스 토큰 저장 완료');
+      }
+      if (response.refreshToken) {
+        localStorage.setItem('refreshToken', response.refreshToken);
+        console.log('[Login] 리프레시 토큰 저장 완료');
+      }
+
+      // 인증 상태 저장
+      localStorage.setItem('isAuthenticated', 'true');
+      console.log('[Login] 인증 상태 저장 완료, 대시보드로 이동');
+
+      // 커스텀 이벤트 발생시켜 App 컴포넌트에 인증 상태 변경 알림
+      window.dispatchEvent(new Event('authStateChanged'));
+
+      // 성공 시 대시보드로 이동
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('[Login] 로그인 실패:', error);
+
+      // 에러 메시지 처리
+      let errorMsg = '로그인에 실패했습니다. 다시 시도해주세요.';
+      if (error.response?.data?.message) {
+        errorMsg = error.response.data.message;
+      } else if (error.response?.status === 401) {
+        errorMsg = '이메일 또는 비밀번호가 올바르지 않습니다.';
+      } else if (error.response?.status === 404) {
+        errorMsg = '서버를 찾을 수 없습니다. 관리자에게 문의해주세요.';
+      } else if (error.response?.status === 400) {
+        errorMsg = '입력한 정보를 확인해주세요.';
+      }
+
+      setErrorMessage(errorMsg);
+      setShowErrorModal(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -339,9 +378,10 @@ const Login = () => {
           <button
             type="button"
             onClick={handleLogin}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transition-all mb-6"
+            disabled={isLoading}
+            className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transition-all mb-6 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            로그인
+            {isLoading ? '로그인 중...' : '로그인'}
           </button>
 
           {/* Divider */}
