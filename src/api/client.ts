@@ -4,9 +4,8 @@ import { refreshToken } from './auth';
 // API 클라이언트 설정
 const getBaseURL = () => {
   const envURL = import.meta.env.VITE_API_BASE_URL;
-  const defaultURL = 'http://52.79.164.160:3000';
-  const baseURL = envURL || defaultURL;
-  // console.log('[API Client] BaseURL 설정:', { envURL, defaultURL, final: baseURL });
+  const baseURL = envURL;
+  // console.log('[API Client] BaseURL 설정:', { envURL });
   return baseURL;
 };
 
@@ -68,12 +67,12 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('isAuthenticated');
         window.dispatchEvent(new Event('authStateChanged'));
-        
+
         // 로그인 페이지로 리다이렉트 (브라우저 환경인 경우)
         if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
           window.location.href = '/login';
         }
-        
+
         return Promise.reject(refreshError);
       }
     }
