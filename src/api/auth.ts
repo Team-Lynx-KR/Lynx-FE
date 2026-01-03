@@ -35,6 +35,17 @@ export interface LoginResponse {
   };
 }
 
+// 토큰 갱신 요청 타입
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+// 토큰 갱신 응답 타입
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
 /**
  * 회원가입 API 호출
  * @param data 회원가입 정보 (이메일, 비밀번호, 닉네임)
@@ -133,4 +144,36 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
     },
   });
   throw lastError;
+};
+
+// 토큰 갱신 요청 타입
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+// 토큰 갱신 응답 타입
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+/**
+ * 토큰 갱신 API 호출
+ * @param refreshToken 리프레시 토큰
+ * @returns 토큰 갱신 성공 응답 (액세스 토큰, 리프레시 토큰)
+ */
+export const refreshToken = async (refreshToken: string): Promise<RefreshTokenResponse> => {
+  const endpoint = '/auth/refresh';
+
+  try {
+    const response = await apiClient.post<RefreshTokenResponse>(endpoint, { refreshToken });
+    console.log('[autologin] ✅ 토큰 갱신 성공!');
+    return response.data;
+  } catch (error: any) {
+    console.error('[autologin] ❌ 토큰 갱신 실패:', {
+      status: error.response?.status,
+      message: error.response?.data?.message || error.message,
+    });
+    throw error;
+  }
 };

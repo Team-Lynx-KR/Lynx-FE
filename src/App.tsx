@@ -8,6 +8,7 @@ import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import Onboarding from './pages/onboarding/Onboarding';
 import Landing from './pages/onboarding/Landing';
+import { refreshToken } from './api/auth';
 
 function App() {
   // 로컬 스토리지에서 인증 상태 확인 (상태로 관리하여 변경 감지)
@@ -23,11 +24,38 @@ function App() {
     }
   );
 
-  // localStorage 변경 감지
+  // localStorage 변경 감지 및 자동 로그인 처리
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-      setIsAuthenticated(authStatus);
+      const keepLoggedIn = localStorage.getItem('keepLoggedIn') === 'true';
+      const storedRefreshToken = localStorage.getItem('refreshToken');
+
+      // 자동 로그인이 설정되어 있고, 리프레시 토큰이 있지만 인증 상태가 없는 경우
+      if (keepLoggedIn && storedRefreshToken && !authStatus) {
+        try {
+          console.log('[autologin] 자동 로그인 시도...');
+          const tokenResponse = await refreshToken(storedRefreshToken);
+          
+          // 새 토큰 저장
+          localStorage.setItem('token', tokenResponse.accessToken);
+          localStorage.setItem('refreshToken', tokenResponse.refreshToken);
+          localStorage.setItem('isAuthenticated', 'true');
+          
+          setIsAuthenticated(true);
+          console.log('[autologin] ✅ 자동 로그인 성공!');
+        } catch (error) {
+          console.error('[autologin] ❌ 자동 로그인 실패:', error);
+          // 자동 로그인 실패 시 토큰 제거
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('keepLoggedIn');
+          localStorage.removeItem('isAuthenticated');
+          setIsAuthenticated(false);
+        }
+      } else {
+        setIsAuthenticated(authStatus);
+      }
     };
 
     // 초기 확인

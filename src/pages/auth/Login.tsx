@@ -114,6 +114,14 @@ const Login = () => {
         console.log('[Login] 리프레시 토큰 저장 완료');
       }
 
+      // 자동 로그인 설정 저장
+      if (keepLoggedIn) {
+        localStorage.setItem('keepLoggedIn', 'true');
+        console.log('[autologin] 자동 로그인 설정 저장');
+      } else {
+        localStorage.removeItem('keepLoggedIn');
+      }
+
       // 인증 상태 저장
       localStorage.setItem('isAuthenticated', 'true');
       console.log('[Login] 인증 상태 저장 완료, 대시보드로 이동');
