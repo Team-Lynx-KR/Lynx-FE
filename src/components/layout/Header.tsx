@@ -4,7 +4,7 @@ const Header = () => {
   return (
     <header
       className="border-dark-800 flex items-center justify-between px-6 py-4 mb-4"
-      style={{ backgroundColor: designTokens.colors.dark[800] }}
+      style={{ backgroundColor: 'var(--color-dark-800)' }}
     >
       <div className="flex items-center gap-6 flex-1">
         {/* 검색바 */}
@@ -13,7 +13,7 @@ const Header = () => {
             type="text"
             placeholder="종목명을 입력해주세요! (예: 네이버)"
             className="w-full px-4 py-2 border border-dark-700 rounded-md text-sm text-dark-100 placeholder-dark-400 focus:outline-none focus:ring-dark-300 focus:border-transparent transition-all duration-200"
-            style={{ backgroundColor: designTokens.colors.dark[700] }}
+            style={{ backgroundColor: 'var(--color-dark-700)' }}
           />
         </div>
       </div>

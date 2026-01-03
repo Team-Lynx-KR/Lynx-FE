@@ -1,14 +1,70 @@
-import { designTokens } from '../../design/tokens';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../../assets/img/logo.svg';
+import SettingsModal from '../modal/SettingsModal';
+import ProfileModal from '../modal/ProfileModal';
+import LogoutConfirmModal from '../modal/LogoutConfirmModal';
 
 const Sidebar = () => {
-  const [activeItem, setActiveItem] = useState('홈');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [favoriteStocks, setFavoriteStocks] = useState<
+    Array<{ name: string; code: string; price: number; changePercent: number }>
+  >([]);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  // 현재 경로에 따라 activeItem 설정
+  const getActiveItem = () => {
+    if (location.pathname === '/favorites') return '관심';
+    if (location.pathname === '/dashboard') return '메인';
+    return '메인';
+  };
+
+  const [activeItem, setActiveItem] = useState(getActiveItem());
+
+  // 경로 변경 감지
+  useEffect(() => {
+    setActiveItem(getActiveItem());
+  }, [location.pathname]);
+
+  // 관심 종목 로드 (배지용)
+  useEffect(() => {
+    const loadFavorites = () => {
+      const favorites = JSON.parse(localStorage.getItem('favoriteStocks') || '[]');
+      setFavoriteStocks(favorites);
+    };
+
+    loadFavorites();
+
+    // 관심 종목 변경 이벤트 리스너
+    const handleFavoriteChange = () => {
+      loadFavorites();
+    };
+
+    window.addEventListener('favoriteStocksChanged', handleFavoriteChange);
+    return () => {
+      window.removeEventListener('favoriteStocksChanged', handleFavoriteChange);
+    };
+  }, []);
+
+  // 로그아웃 확인 모달 열기
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  // 로그아웃 실행
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    window.dispatchEvent(new Event('authStateChanged'));
+    setIsLogoutModalOpen(false);
+    navigate('/login');
+  };
 
   const menuItems = [
     { id: '메인', label: '메인', icon: 'main' },
     { id: '관심', label: '관심', icon: 'star' },
-    { id: '최근', label: '최근', icon: 'recently' },
   ];
 
   const getIcon = (iconType: string) => {
@@ -35,17 +91,6 @@ const Sidebar = () => {
             />
           </svg>
         );
-      case 'recently':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        );
       default:
         return null;
     }
@@ -54,7 +99,7 @@ const Sidebar = () => {
   return (
     <aside
       className="h-full flex-shrink-0 border-r border-dark-800"
-      style={{ backgroundColor: designTokens.colors.dark[800], width: '80px' }}
+      style={{ backgroundColor: 'var(--color-dark-800)', width: '80px' }}
     >
       <div className="flex flex-col h-full">
         {/* 상단 로고 영역 */}
@@ -64,39 +109,44 @@ const Sidebar = () => {
 
         {/* 네비게이션 메뉴 */}
         <nav className="flex-1 py-2">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveItem(item.id)}
-              className={`w-full flex flex-col items-center gap-1 px-2 py-3 transition-colors duration-200 ${
-                activeItem === item.id
-                  ? 'text-dark-100 bg-dark-800'
-                  : 'text-dark-400 hover:text-dark-100 hover:bg-dark-800'
-              }`}
-            >
-              {getIcon(item.icon)}
-              <span className="text-xs text-center leading-tight">{item.label}</span>
-            </button>
-          ))}
+          {menuItems.map((item) => {
+            const handleClick = () => {
+              if (item.id === '메인') {
+                navigate('/dashboard');
+              } else if (item.id === '관심') {
+                navigate('/favorites');
+              }
+              // 최근은 아직 구현 안됨
+            };
+
+            return (
+              <button
+                key={item.id}
+                onClick={handleClick}
+                className={`relative w-full flex flex-col items-center gap-1 px-2 py-3 transition-colors duration-200 ${
+                  activeItem === item.id
+                    ? 'text-dark-100 bg-dark-800'
+                    : 'text-dark-400 hover:text-dark-100 hover:bg-dark-800'
+                }`}
+              >
+                {getIcon(item.icon)}
+                <span className="text-xs text-center leading-tight">{item.label}</span>
+                {item.id === '관심' && favoriteStocks.length > 0 && (
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-error-500 rounded-full"></span>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
         {/* 하단 유틸리티 */}
         <div className="border-t">
           <div className="flex flex-col items-center">
-            {/* 밝기/테마 */}
-            <button className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                />
-              </svg>
-            </button>
-
             {/* 설정 */}
-            <button className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200">
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200"
+            >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -113,9 +163,27 @@ const Sidebar = () => {
               </svg>
             </button>
 
-            <div className="border-t border-dark-700">
+            {/* 로그아웃 */}
+            <button
+              onClick={handleLogoutClick}
+              className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+            </button>
+
+            <div className="border-t border-dark-700 w-full flex flex-col items-center">
               {/* 프로필 */}
-              <button className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200">
+              <button
+                onClick={() => setIsProfileOpen(true)}
+                className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -129,6 +197,15 @@ const Sidebar = () => {
           </div>
         </div>
       </div>
+
+      {/* 모달 */}
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+      <LogoutConfirmModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+      />
     </aside>
   );
 };
