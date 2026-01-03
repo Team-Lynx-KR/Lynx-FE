@@ -2,6 +2,8 @@ import { designTokens } from '../../design/tokens';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../../assets/img/logo.svg';
+import SettingsModal from '../modal/SettingsModal';
+import ProfileModal from '../modal/ProfileModal';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -9,6 +11,11 @@ const Sidebar = () => {
   const [favoriteStocks, setFavoriteStocks] = useState<
     Array<{ name: string; code: string; price: number; changePercent: number }>
   >([]);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(
+    () => localStorage.getItem('theme') !== 'light'
+  );
 
   // 현재 경로에 따라 activeItem 설정
   const getActiveItem = () => {
@@ -42,6 +49,37 @@ const Sidebar = () => {
     return () => {
       window.removeEventListener('favoriteStocksChanged', handleFavoriteChange);
     };
+  }, []);
+
+  // 테마 전환
+  const toggleTheme = () => {
+    const newTheme = isDarkMode ? 'light' : 'dark';
+    setIsDarkMode(!isDarkMode);
+    localStorage.setItem('theme', newTheme);
+    
+    // HTML 요소에 테마 클래스 추가/제거
+    if (newTheme === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    }
+    
+    // 테마 변경 이벤트 발생
+    window.dispatchEvent(new CustomEvent('themeChanged', { detail: newTheme }));
+  };
+
+  // 초기 테마 적용
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    }
   }, []);
 
   const menuItems = [
@@ -125,19 +163,36 @@ const Sidebar = () => {
         <div className="border-t">
           <div className="flex flex-col items-center">
             {/* 밝기/테마 */}
-            <button className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                />
-              </svg>
+            <button
+              onClick={toggleTheme}
+              className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200"
+            >
+              {isDarkMode ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                  />
+                </svg>
+              )}
             </button>
 
             {/* 설정 */}
-            <button className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200">
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200"
+            >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -156,7 +211,10 @@ const Sidebar = () => {
 
             <div className="border-t border-dark-700">
               {/* 프로필 */}
-              <button className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200">
+              <button
+                onClick={() => setIsProfileOpen(true)}
+                className="p-5 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-colors duration-200"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -170,6 +228,10 @@ const Sidebar = () => {
           </div>
         </div>
       </div>
+
+      {/* 모달 */}
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
     </aside>
   );
 };
