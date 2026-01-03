@@ -23,13 +23,13 @@ const StockChartCard = ({
 }: StockChartCardProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  
+
   // 관심 종목 상태 관리 (localStorage에서 초기값 가져오기)
   const getInitialFavoriteState = () => {
     const favorites = JSON.parse(localStorage.getItem('favoriteStocks') || '[]');
     return favorites.some((stock: { code: string }) => stock.code === code);
   };
-  
+
   const [isFavorite, setIsFavorite] = useState(getInitialFavoriteState);
   const [clickCount, setClickCount] = useState(0);
 
@@ -124,18 +124,18 @@ const StockChartCard = ({
   // 관심 종목 토글 함수
   const handleStarClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // 카드 클릭 이벤트 방지
-    
+
     const newClickCount = clickCount + 1;
     setClickCount(newClickCount);
-    
+
     // 홀수번 클릭 시 채워짐, 짝수번 클릭 시 비워짐
     const newIsFavorite = newClickCount % 2 === 1;
     setIsFavorite(newIsFavorite);
-    
+
     // localStorage에 관심 종목 저장/제거
     const favorites = JSON.parse(localStorage.getItem('favoriteStocks') || '[]');
     const stockInfo = { name, code, price, changePercent };
-    
+
     if (newIsFavorite) {
       // 추가
       if (!favorites.some((stock: { code: string }) => stock.code === code)) {
@@ -174,22 +174,19 @@ const StockChartCard = ({
       style={{ backgroundColor: designTokens.colors.dark[800] }}
       onClick={handleCardClick}
     >
-      {/* 헤더: 종목명, 가격 */}
+      {/* 헤더: 별 아이콘, 종목명 (왼쪽) / 가격, 퍼센트 (오른쪽) */}
       <div className="mb-2 flex-shrink-0">
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex items-start justify-between">
+          {/* 왼쪽: 별 아이콘, 종목명 */}
           <div className="flex items-center gap-2">
             {/* 별 아이콘 */}
             <button
               data-star-icon
               onClick={handleStarClick}
-              className="flex-shrink-0 p-0.5 hover:opacity-80 transition-opacity"
+              className="flex-shrink-0 hover:opacity-80 transition-opacity mt-0.5"
             >
               {isFavorite ? (
-                <svg
-                  className="w-4 h-4 text-warning-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
+                <svg className="w-4 h-4 text-warning-400" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               ) : (
@@ -208,11 +205,10 @@ const StockChartCard = ({
                 </svg>
               )}
             </button>
-            <div>
-              <h4 className="text-base font-semibold text-dark-100">{name}</h4>
-              <p className="text-xs text-dark-400">{code}</p>
-            </div>
+            {/* 종목명 */}
+            <h4 className="text-base font-semibold text-dark-100">{name}</h4>
           </div>
+          {/* 오른쪽: 가격, 퍼센트 */}
           <div className="text-right">
             <p className="text-lg font-bold text-dark-100">{price.toLocaleString()}원</p>
             <p className={`text-sm font-medium ${changeColor}`}>

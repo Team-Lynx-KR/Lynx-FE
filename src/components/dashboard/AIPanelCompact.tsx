@@ -3,14 +3,12 @@ import { createChart, IChartApi } from 'lightweight-charts';
 import { designTokens } from '../../design/tokens';
 import { useState } from 'react';
 import AIRecommendationModal from '../modal/AIRecommendationModal';
-import IndicatorAnalysisModal from '../modal/IndicatorAnalysisModal';
 import BuyOrderModal from '../modal/BuyOrderModal';
 
 const AIPanelCompact = () => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isIndicatorModalOpen, setIsIndicatorModalOpen] = useState(false);
   const [isBuyOrderModalOpen, setIsBuyOrderModalOpen] = useState(false);
   const [isSellOrderModalOpen, setIsSellOrderModalOpen] = useState(false);
 
@@ -109,6 +107,9 @@ const AIPanelCompact = () => {
       <div
         className="rounded-lg border border-dark-800 p-4 h-full flex flex-col overflow-hidden"
         style={{ backgroundColor: designTokens.colors.dark[800] }}
+        onClick={() => {
+          setIsBuyOrderModalOpen(true);
+        }}
       >
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-2 flex-shrink-0">
@@ -170,38 +171,12 @@ const AIPanelCompact = () => {
             </div>
           </div>
         </div>
-
-        {/* 액션 버튼 */}
-        <div className="flex gap-2 mt-2 flex-shrink-0">
-          <button
-            onClick={() => setIsIndicatorModalOpen(true)}
-            className="flex-1 px-3 py-2 bg-dark-700 hover:bg-dark-600 text-dark-100 rounded-lg text-xs font-medium transition-colors duration-200"
-          >
-            보조지표
-          </button>
-          <button
-            onClick={() => {
-              setIsBuyOrderModalOpen(true);
-            }}
-            className="flex-1 px-3 py-2 bg-error-600 hover:bg-error-700 text-white rounded-lg text-xs font-semibold transition-colors duration-200"
-          >
-            매수
-          </button>
-        </div>
       </div>
 
       {/* AI 매매 추천 모달 */}
       <AIRecommendationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        stockName="삼성전자"
-        stockCode="005930"
-      />
-
-      {/* 보조지표 상세 분석 모달 */}
-      <IndicatorAnalysisModal
-        isOpen={isIndicatorModalOpen}
-        onClose={() => setIsIndicatorModalOpen(false)}
         stockName="삼성전자"
         stockCode="005930"
       />
@@ -234,4 +209,3 @@ const AIPanelCompact = () => {
 };
 
 export default AIPanelCompact;
-
