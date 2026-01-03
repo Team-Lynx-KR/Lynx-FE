@@ -20,7 +20,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
     >
       <div
         className="rounded-2xl w-full max-w-lg p-6 relative border border-dark-700 shadow-2xl"
-        style={{ backgroundColor: designTokens.colors.dark[800] }}
+        style={{ backgroundColor: 'var(--color-dark-800)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}

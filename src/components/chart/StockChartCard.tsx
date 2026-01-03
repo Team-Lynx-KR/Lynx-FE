@@ -32,17 +32,26 @@ const StockChartCard = ({
 
   const [isFavorite, setIsFavorite] = useState(getInitialFavoriteState);
   const [clickCount, setClickCount] = useState(0);
+  const [themeChangeKey, setThemeChangeKey] = useState(0);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
-    const chart = createChart(chartContainerRef.current, {
-      width: chartContainerRef.current.clientWidth,
-      height: chartContainerRef.current.clientHeight,
-      layout: {
-        background: { color: designTokens.colors.dark[800] },
-        textColor: designTokens.colors.dark[400],
-      },
+            // CSS 변수에서 색상 가져오기
+            const bgColor = getComputedStyle(document.documentElement)
+              .getPropertyValue('--color-dark-800')
+              .trim() || '#1a1a1a';
+            const textColor = getComputedStyle(document.documentElement)
+              .getPropertyValue('--color-dark-400')
+              .trim() || '#a3a3a3';
+
+            const chart = createChart(chartContainerRef.current, {
+              width: chartContainerRef.current.clientWidth,
+              height: chartContainerRef.current.clientHeight,
+              layout: {
+                background: { color: bgColor },
+                textColor: textColor,
+              },
       grid: {
         vertLines: { visible: false },
         horzLines: { visible: false },
@@ -116,7 +125,19 @@ const StockChartCard = ({
       observer.disconnect();
       chart.remove();
     };
-  }, [price, isUp]);
+  }, [price, isUp, themeChangeKey]);
+
+  // 테마 변경 감지
+  useEffect(() => {
+    const handleThemeChange = () => {
+      setThemeChangeKey((prev: number) => prev + 1);
+    };
+
+    window.addEventListener('themeChanged', handleThemeChange);
+    return () => {
+      window.removeEventListener('themeChanged', handleThemeChange);
+    };
+  }, []);
 
   const changeColor = isUp ? 'text-error-500' : 'text-info-500';
   const changeSign = isUp ? '+' : '';
@@ -171,7 +192,7 @@ const StockChartCard = ({
   return (
     <div
       className="rounded-lg border border-dark-800 p-4 flex flex-col cursor-pointer hover:opacity-90 transition-opacity duration-200 h-full"
-      style={{ backgroundColor: designTokens.colors.dark[800] }}
+      style={{ backgroundColor: 'var(--color-dark-800)' }}
       onClick={handleCardClick}
     >
       {/* 헤더: 별 아이콘, 종목명 (왼쪽) / 가격, 퍼센트 (오른쪽) */}
@@ -226,7 +247,7 @@ const StockChartCard = ({
         className="flex-1 w-full min-h-0 mb-2"
         style={{
           position: 'relative',
-          backgroundColor: designTokens.colors.dark[800],
+          backgroundColor: 'var(--color-dark-800)',
           minHeight: '120px',
         }}
       />

@@ -9,7 +9,7 @@ const IndicatorCard = ({ stockName = '삼성전자', onClick }: IndicatorCardPro
   return (
     <div
       className="rounded-lg border border-dark-800 p-4 flex flex-col cursor-pointer hover:opacity-90 transition-opacity duration-200 h-full"
-      style={{ backgroundColor: designTokens.colors.dark[800] }}
+        style={{ backgroundColor: 'var(--color-dark-800)' }}
       onClick={onClick}
     >
       <div className="mb-3">

@@ -71,7 +71,7 @@ const NewsPanel = () => {
     <>
       <div
         className="flex-1 flex flex-col rounded-lg border border-dark-800 p-4 min-h-0 h-full overflow-hidden"
-        style={{ backgroundColor: designTokens.colors.dark[800] }}
+        style={{ backgroundColor: 'var(--color-dark-800)' }}
       >
         {/* 헤더 */}
         <div className="mb-3 flex-shrink-0">

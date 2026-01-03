@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import Dashboard from './pages/dashboard/Dashboard';
 import Favorites from './pages/favorites/Favorites';
 import Header from './components/layout/Header';
-import { designTokens } from './design/tokens';
 import Sidebar from './components/layout/Sidebar';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
@@ -14,6 +13,14 @@ function App() {
   // 로컬 스토리지에서 인증 상태 확인 (상태로 관리하여 변경 감지)
   const [isAuthenticated, setIsAuthenticated] = useState(
     () => localStorage.getItem('isAuthenticated') === 'true'
+  );
+  
+  // 테마 상태 관리 (전체 앱 리렌더링을 위해)
+  const [, setTheme] = useState(
+    () => {
+      const clickCount = parseInt(localStorage.getItem('themeClickCount') || '0', 10);
+      return clickCount % 2 === 1 ? 'light' : 'dark';
+    }
   );
 
   // localStorage 변경 감지
@@ -38,6 +45,19 @@ function App() {
     };
   }, []);
 
+  // 테마 변경 감지
+  useEffect(() => {
+    const handleThemeChange = (e: CustomEvent) => {
+      setTheme(e.detail);
+    };
+
+    window.addEventListener('themeChanged', handleThemeChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('themeChanged', handleThemeChange as EventListener);
+    };
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -59,7 +79,7 @@ function App() {
               return (
                 <div
                   className="flex h-screen w-screen overflow-hidden"
-                  style={{ backgroundColor: designTokens.colors.dark[900] }}
+                  style={{ backgroundColor: 'var(--color-dark-900)' }}
                 >
                   {/* 사이드바 */}
                   <Sidebar />
@@ -91,7 +111,7 @@ function App() {
               return (
                 <div
                   className="flex h-screen w-screen overflow-hidden"
-                  style={{ backgroundColor: designTokens.colors.dark[900] }}
+                  style={{ backgroundColor: 'var(--color-dark-900)' }}
                 >
                   {/* 사이드바 */}
                   <Sidebar />

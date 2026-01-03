@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createChart, IChartApi } from 'lightweight-charts';
 import { designTokens } from '../../design/tokens';
-import { useState } from 'react';
 import AIRecommendationModal from '../modal/AIRecommendationModal';
 import BuyOrderModal from '../modal/BuyOrderModal';
 
@@ -11,6 +10,7 @@ const AIPanelCompact = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBuyOrderModalOpen, setIsBuyOrderModalOpen] = useState(false);
   const [isSellOrderModalOpen, setIsSellOrderModalOpen] = useState(false);
+  const [themeChangeKey, setThemeChangeKey] = useState(0);
 
   // 현재 가격과 예측 데이터
   const currentPrice = 71500;
@@ -19,12 +19,20 @@ const AIPanelCompact = () => {
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
+    // CSS 변수에서 색상 가져오기
+    const bgColor = getComputedStyle(document.documentElement)
+      .getPropertyValue('--color-dark-800')
+      .trim() || '#1a1a1a';
+    const textColor = getComputedStyle(document.documentElement)
+      .getPropertyValue('--color-dark-400')
+      .trim() || '#a3a3a3';
+
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
       height: chartContainerRef.current.clientHeight,
       layout: {
-        background: { color: designTokens.colors.dark[800] },
-        textColor: designTokens.colors.dark[400],
+        background: { color: bgColor },
+        textColor: textColor,
       },
       grid: {
         vertLines: { visible: false },
@@ -100,13 +108,25 @@ const AIPanelCompact = () => {
       window.removeEventListener('resize', handleResize);
       chart.remove();
     };
+  }, [themeChangeKey]);
+
+  // 테마 변경 감지
+  useEffect(() => {
+    const handleThemeChange = () => {
+      setThemeChangeKey((prev: number) => prev + 1);
+    };
+
+    window.addEventListener('themeChanged', handleThemeChange);
+    return () => {
+      window.removeEventListener('themeChanged', handleThemeChange);
+    };
   }, []);
 
   return (
     <>
       <div
         className="rounded-lg border border-dark-800 p-4 h-full flex flex-col overflow-hidden"
-        style={{ backgroundColor: designTokens.colors.dark[800] }}
+        style={{ backgroundColor: 'var(--color-dark-800)' }}
         onClick={() => {
           setIsBuyOrderModalOpen(true);
         }}
@@ -123,7 +143,7 @@ const AIPanelCompact = () => {
           className="flex-1 w-full min-h-0 mb-2"
           style={{
             position: 'relative',
-            backgroundColor: designTokens.colors.dark[800],
+            backgroundColor: 'var(--color-dark-800)',
             minHeight: '120px',
           }}
         />
