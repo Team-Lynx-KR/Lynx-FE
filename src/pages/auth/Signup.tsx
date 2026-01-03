@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import TermsModal from './modal/TermsModal';
 import PrivacyModal from './modal/PrivacyModal';
 import ErrorModal from './modal/ErrorModal';
+import { register } from '@/api/auth';
 import logo from '@/assets/img/logo.svg';
 import googleLogo from '../../assets/img/google-logo.svg';
 import kakaoLogo from '../../assets/img/kakao-logo.svg';
@@ -13,24 +15,25 @@ const Signup = () => {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [name, setName] = useState('');
+  const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [nameError, setNameError] = useState('');
+  const [nicknameError, setNicknameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 이름 유효성 검사
-  const validateName = (value: string) => {
+  // 닉네임 유효성 검사
+  const validateNickname = (value: string) => {
     if (!value) {
       return '';
     }
     if (value.length < 2) {
-      return '이름은 2자 이상이어야 합니다.';
+      return '닉네임은 2자 이상이어야 합니다.';
     }
     return '';
   };
@@ -76,10 +79,10 @@ const Signup = () => {
     return '';
   };
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setName(value);
-    setNameError(validateName(value));
+    setNickname(value);
+    setNicknameError(validateNickname(value));
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,22 +107,22 @@ const Signup = () => {
     setConfirmPasswordError(validateConfirmPassword(value, password));
   };
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     // 모든 필드 입력 확인
-    if (!name || !email || !password || !confirmPassword) {
+    if (!nickname || !email || !password || !confirmPassword) {
       setErrorMessage('모든 필드를 입력해주세요.');
       setShowErrorModal(true);
       return;
     }
 
     // 유효성 검사 재확인
-    const nameValidation = validateName(name);
+    const nicknameValidation = validateNickname(nickname);
     const emailValidation = validateEmail(email);
     const passwordValidation = validatePassword(password);
     const confirmPasswordValidation = validateConfirmPassword(confirmPassword, password);
 
-    if (nameValidation || emailValidation || passwordValidation || confirmPasswordValidation) {
-      setNameError(nameValidation);
+    if (nicknameValidation || emailValidation || passwordValidation || confirmPasswordValidation) {
+      setNicknameError(nicknameValidation);
       setEmailError(emailValidation);
       setPasswordError(passwordValidation);
       setConfirmPasswordError(confirmPasswordValidation);
@@ -128,10 +131,37 @@ const Signup = () => {
       return;
     }
 
-    // TODO: 실제 API 호출로 교체
-    // 여기서는 임시로 성공/실패 시뮬레이션
-    // 성공 시 로그인 화면으로 이동
-    navigate('/login');
+    // API 호출
+    setIsLoading(true);
+    try {
+      await register({
+        email,
+        password,
+        nickname,
+      });
+
+      // 성공 시 로그인 화면으로 이동
+      navigate('/login', {
+        state: { message: '회원가입이 완료되었습니다. 로그인해주세요.' },
+      });
+    } catch (error: any) {
+      console.error('[Signup] 회원가입 실패:', error);
+
+      // 에러 메시지 처리
+      let errorMsg = '회원가입에 실패했습니다. 다시 시도해주세요.';
+      if (error.response?.data?.message) {
+        errorMsg = error.response.data.message;
+      } else if (error.response?.status === 409) {
+        errorMsg = '이미 사용 중인 이메일입니다.';
+      } else if (error.response?.status === 400) {
+        errorMsg = '입력한 정보를 확인해주세요.';
+      }
+
+      setErrorMessage(errorMsg);
+      setShowErrorModal(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -240,9 +270,9 @@ const Signup = () => {
           <h2 className="text-3xl font-bold text-white mb-2">회원가입</h2>
           <p className="text-dark-400 text-sm mb-8">LYNX 계정을 만들어보세요</p>
 
-          {/* Name Input */}
+          {/* Nickname Input */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-dark-300 mb-2">이름</label>
+            <label className="block text-sm font-medium text-dark-300 mb-2">닉네임</label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                 <svg
@@ -258,17 +288,17 @@ const Signup = () => {
               </div>
               <input
                 type="text"
-                value={name}
-                onChange={handleNameChange}
-                placeholder="홍길동"
+                value={nickname}
+                onChange={handleNicknameChange}
+                placeholder="닉네임을 입력하세요"
                 className={`w-full pl-10 pr-4 py-3 bg-[#262626]/60 backdrop-blur-sm border rounded-lg text-white placeholder-dark-500 focus:outline-none focus:ring-2 transition-all ${
-                  nameError
+                  nicknameError
                     ? 'border-red-500 focus:ring-red-500/50 focus:border-red-500/50'
                     : 'border-white/10 focus:ring-purple-500/50 focus:border-purple-500/50'
                 }`}
               />
             </div>
-            {nameError && <p className="mt-2 text-sm text-red-500">{nameError}</p>}
+            {nicknameError && <p className="mt-2 text-sm text-red-500">{nicknameError}</p>}
           </div>
 
           {/* Email Input */}
@@ -433,9 +463,10 @@ const Signup = () => {
           {/* Signup Button */}
           <button
             onClick={handleSignup}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:via-purple-600 hover:to-blue-600 transition-all mb-6 shadow-lg shadow-purple-500/20"
+            disabled={isLoading}
+            className="w-full py-3 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:via-purple-600 hover:to-blue-600 transition-all mb-6 shadow-lg shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            회원가입
+            {isLoading ? '처리 중...' : '회원가입'}
           </button>
 
           {/* Divider */}

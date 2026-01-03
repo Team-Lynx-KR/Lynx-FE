@@ -1,8 +1,18 @@
 import axios from 'axios';
 
 // API 클라이언트 설정
+// Swagger 주소: http://52.79.164.160:3000/api
+// 환경 변수 확인 및 디버깅
+const getBaseURL = () => {
+  const envURL = import.meta.env.VITE_API_BASE_URL;
+  const defaultURL = 'http://52.79.164.160:3000';
+  const baseURL = envURL || defaultURL;
+  console.log('[API Client] BaseURL 설정:', { envURL, defaultURL, final: baseURL });
+  return baseURL;
+};
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  baseURL: getBaseURL(),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -17,6 +27,13 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // 디버깅: 실제 요청 URL 로그
+    console.log('[API Request]', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: `${config.baseURL}${config.url}`,
+    });
     return config;
   },
   (error) => {
@@ -38,4 +55,3 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
-
