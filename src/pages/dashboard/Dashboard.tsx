@@ -8,6 +8,9 @@ import WebSocketStatusPanel from '../../components/dashboard/WebSocketStatusPane
 import WebSocketClient from '../../utils/websocket';
 import { getKISWebSocketAuth } from '../../api/stock';
 
+// 전역 연결 플래그 (모든 Dashboard 인스턴스 공유)
+let globalConnectingFlag = false;
+
 const Dashboard = () => {
   const [selectedStock, setSelectedStock] = useState<{
     name: string;
@@ -17,6 +20,8 @@ const Dashboard = () => {
     orderType: 'buy' | 'sell';
   } | null>(null);
   const wsClientRef = useRef<WebSocketClient | null>(null);
+  const isConnectingRef = useRef<boolean>(false);
+  const [wsClient, setWsClient] = useState<WebSocketClient | null>(null);
 
   // WebSocket URL 환경 변수에서 가져오기
   const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
@@ -28,6 +33,17 @@ const Dashboard = () => {
       return;
     }
 
+    // 이미 연결 중이거나 연결되어 있으면 중복 실행 방지
+    if (globalConnectingFlag || isConnectingRef.current || wsClientRef.current?.isConnected()) {
+      return;
+    }
+
+    // 즉시 플래그 설정 (중복 실행 방지)
+    globalConnectingFlag = true;
+    isConnectingRef.current = true;
+
+    let mounted = true;
+
     const connectWebSocket = async () => {
       try {
         console.log('[Dashboard] 🔄 KIS WebSocket 접속키 발급 시작...');
@@ -37,10 +53,28 @@ const Dashboard = () => {
         const approvalKey = authResponse.approval_key;
         console.log('[Dashboard] ✅ 접속키 발급 성공');
 
+        // 컴포넌트가 언마운트되었으면 연결하지 않음
+        if (!mounted) {
+          globalConnectingFlag = false;
+          isConnectingRef.current = false;
+          return;
+        }
+
         // WebSocket 클라이언트 생성 및 연결
         const client = new WebSocketClient(wsUrl);
         wsClientRef.current = client;
         await client.connect(approvalKey);
+
+        if (!mounted) {
+          client.disconnect();
+          globalConnectingFlag = false;
+          isConnectingRef.current = false;
+          return;
+        }
+
+        // state 업데이트로 WebSocketStatusPanel에 전달
+        setWsClient(client);
+
         console.log('[Dashboard] ✅ WebSocket 연결 성공 - 대시보드 데이터 수신 준비 완료');
 
         // WebSocket 메시지 핸들러 등록 (실시간 데이터 처리)
@@ -49,8 +83,15 @@ const Dashboard = () => {
           // TODO: 여기서 실시간 주식 데이터 처리 로직 추가
           // 예: 차트 업데이트, 가격 변경 등
         });
+
+        // 연결 성공 시 플래그는 유지 (cleanup에서만 해제)
       } catch (error) {
-        console.error('[Dashboard] ❌ WebSocket 연결 실패:', error);
+        if (mounted) {
+          console.error('[Dashboard] ❌ WebSocket 연결 실패:', error);
+        }
+        // 에러 발생 시에만 플래그 해제
+        globalConnectingFlag = false;
+        isConnectingRef.current = false;
       }
     };
 
@@ -59,16 +100,23 @@ const Dashboard = () => {
 
     // 컴포넌트 언마운트 시 연결 해제
     return () => {
+      mounted = false;
+
+      // 연결이 완료되지 않은 경우에만 플래그 해제
+      // (Strict Mode cleanup에서도 연결 중이면 계속 유지)
+      if (!wsClientRef.current?.isConnected()) {
+        globalConnectingFlag = false;
+        isConnectingRef.current = false;
+      }
+
       if (wsClientRef.current) {
         wsClientRef.current.disconnect();
         wsClientRef.current = null;
+        setWsClient(null); // state도 초기화
         console.log('[Dashboard] WebSocket 연결 해제');
       }
     };
   }, [wsUrl]);
-
-  // WebSocket 클라이언트 상태 (WebSocketStatusPanel에 전달)
-  const wsClient = wsClientRef.current;
 
   return (
     <div className="flex h-full w-full gap-4 p-4 overflow-hidden relative">

@@ -117,9 +117,6 @@ const WebSocketLogPanel = ({ wsUrl, onConnect }: WebSocketLogPanelProps) => {
             <div
               className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}
             />
-            <span className="text-sm font-medium text-gray-200">
-              {isConnected ? '연결됨' : '연결 끊김'}
-            </span>
           </div>
           <span className="text-xs text-gray-400">({filteredLogs.length}개 로그)</span>
         </div>
