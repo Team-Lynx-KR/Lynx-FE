@@ -12,6 +12,23 @@ const LandingHeader = () => {
     }
   };
 
+  const handleDownload = () => {
+    const downloadUrl = import.meta.env.VITE_DOWNLOAD_URL;
+    
+    if (downloadUrl) {
+      // 환경 변수에 다운로드 URL이 설정되어 있으면 파일 다운로드
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = 'Lynx-Setup.exe'; // 다운로드될 파일명
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      // 다운로드 URL이 없으면 회원가입 페이지로 이동
+      navigate('/signup');
+    }
+  };
+
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4"
@@ -57,7 +74,7 @@ const LandingHeader = () => {
           로그인
         </button>
         <button
-          onClick={() => navigate('/signup')}
+          onClick={handleDownload}
           className="px-4 py-2 rounded-base text-white transition-all hover:opacity-90 flex items-center gap-2"
           style={{
             background: 'linear-gradient(135deg, #a855f7 0%, #3b82f6 100%)',

@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { designTokens } from '../../design/tokens';
-import logo from '@/assets/img/logo.svg';
 import Landing from './Landing';
 
 const Onboarding = () => {

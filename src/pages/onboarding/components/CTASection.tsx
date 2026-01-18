@@ -3,6 +3,23 @@ import { useNavigate } from 'react-router-dom';
 const CTASection = () => {
   const navigate = useNavigate();
 
+  const handleDownload = () => {
+    const downloadUrl = import.meta.env.VITE_DOWNLOAD_URL;
+    
+    if (downloadUrl) {
+      // 환경 변수에 다운로드 URL이 설정되어 있으면 파일 다운로드
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = 'Lynx-Setup.exe'; // 다운로드될 파일명
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      // 다운로드 URL이 없으면 회원가입 페이지로 이동
+      navigate('/signup');
+    }
+  };
+
   return (
     <section className="py-20 px-8">
       <div className="max-w-2xl mx-auto">
@@ -15,7 +32,7 @@ const CTASection = () => {
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">지금 바로 시작하세요</h2>
           <p className="text-xl text-purple-100 mb-8">무료로 시작하고, 언제든지 업그레이드하세요</p>
           <button
-            onClick={() => navigate('/signup')}
+            onClick={handleDownload}
             className="px-8 py-4 rounded-lg text-white font-semibold transition-all hover:opacity-90 flex items-center gap-2 mx-auto"
             style={{
               background: 'rgba(255, 255, 255, 0.2)',

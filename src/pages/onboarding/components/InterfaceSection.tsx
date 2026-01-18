@@ -29,7 +29,7 @@ const InterfaceSection = () => {
               src={dashboard}
               alt="Dashboard Preview"
               className="w-full rounded-lg"
-              style={{ maxHeight: '720px' }}
+              style={{ maxHeight: '880px' }}
             />
           </div>
         </div>
