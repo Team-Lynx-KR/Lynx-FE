@@ -29,7 +29,7 @@ const ChartPanel = () => {
 
     // 예시 데이터
     const lineSeries = chart.addLineSeries({
-      color: designTokens.colors.primary[500],
+      color: designTokens.colors.purple[500],
       lineWidth: 2,
     });
 

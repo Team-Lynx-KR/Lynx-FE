@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { createChart, IChartApi } from 'lightweight-charts';
-import { designTokens } from '../../design/tokens';
 
 interface StockChartCardProps {
   name: string;
   code: string;
   price: number;
-  change: number;
   changePercent: number;
   isUp: boolean; // 상승(true) 또는 하락(false)
   onClick?: (orderType: 'buy' | 'sell') => void;
@@ -16,7 +14,6 @@ const StockChartCard = ({
   name,
   code,
   price,
-  change,
   changePercent,
   isUp,
   onClick,
@@ -64,26 +61,43 @@ const StockChartCard = ({
       },
     });
 
-    const lineSeries = chart.addLineSeries({
-      color: isUp ? designTokens.colors.error : designTokens.colors.info,
-      lineWidth: 2,
+    // 캔들스틱 차트 시리즈 추가 (상승=파랑, 하락=빨강)
+    const candlestickSeries = chart.addCandlestickSeries({
+      upColor: '#4A90E2', // 파랑 (상승)
+      downColor: '#E74C3C', // 빨강 (하락)
+      borderUpColor: '#4A90E2',
+      borderDownColor: '#E74C3C',
+      wickUpColor: '#4A90E2',
+      wickDownColor: '#E74C3C',
     });
 
-    // 올바른 날짜 형식으로 샘플 데이터 생성
+    // 캔들스틱 데이터 생성 (OHLC 형식)
     const now = new Date();
-    const sampleData = Array.from({ length: 50 }, (_, i) => {
+    const sampleCandlestickData = Array.from({ length: 50 }, (_, i) => {
       const date = new Date(now);
       date.setDate(date.getDate() - (49 - i));
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
+      
+      // 랜덤 가격 변동 생성 (현재 가격 기준)
+      const basePrice = price * (0.9 + (i / 50) * 0.2); // 시간에 따른 기본 가격 추세
+      const variation = basePrice * 0.02; // 변동폭 2%
+      const open = basePrice + (Math.random() - 0.5) * variation;
+      const close = open + (Math.random() - 0.5) * variation * 2;
+      const high = Math.max(open, close) + Math.random() * variation;
+      const low = Math.min(open, close) - Math.random() * variation;
+      
       return {
-        time: `${year}-${month}-${day}`,
-        value: price + (Math.random() - 0.5) * price * 0.1,
+        time: `${year}-${month}-${day}` as const,
+        open: Math.round(open),
+        high: Math.round(high),
+        low: Math.round(low),
+        close: Math.round(close),
       };
     });
 
-    lineSeries.setData(sampleData);
+    candlestickSeries.setData(sampleCandlestickData);
     chartRef.current = chart;
 
     // TradingView 워터마크 제거 함수

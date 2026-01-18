@@ -12,6 +12,19 @@ const LandingHeader = () => {
     }
   };
 
+  const handleDownload = () => {
+    const downloadUrl = import.meta.env.VITE_DOWNLOAD_URL;
+    
+    if (downloadUrl) {
+      // 다른 도메인 파일 다운로드는 window.location.href 사용
+      // 브라우저가 자동으로 다운로드 처리
+      window.location.href = downloadUrl;
+    } else {
+      // 다운로드 URL이 없으면 회원가입 페이지로 이동
+      navigate('/signup');
+    }
+  };
+
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4"
@@ -57,7 +70,7 @@ const LandingHeader = () => {
           로그인
         </button>
         <button
-          onClick={() => navigate('/signup')}
+          onClick={handleDownload}
           className="px-4 py-2 rounded-base text-white transition-all hover:opacity-90 flex items-center gap-2"
           style={{
             background: 'linear-gradient(135deg, #a855f7 0%, #3b82f6 100%)',
