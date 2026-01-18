@@ -8,6 +8,7 @@ import BuyOrderModal from '../../components/modal/BuyOrderModal';
 import WebSocketStatusPanel from '../../components/dashboard/WebSocketStatusPanel';
 import WebSocketClient from '../../utils/websocket';
 import { getKISWebSocketAuth, searchStock } from '../../api/stock';
+import { useAppStore } from '../../store/useAppStore';
 
 // 전역 연결 플래그 (모든 Dashboard 인스턴스 공유)
 let globalConnectingFlag = false;
@@ -25,8 +26,10 @@ interface StockData {
 }
 
 const Dashboard = () => {
+  const { searchedStock } = useAppStore();
+
   // 대시보드에 표시할 종목 목록 (3x3 = 9개)
-  const dashboardStocks = [
+  const defaultDashboardStocks = [
     { code: '005930', name: '삼성전자' },
     { code: '000660', name: 'SK하이닉스' },
     { code: '035420', name: 'NAVER' },
@@ -37,6 +40,11 @@ const Dashboard = () => {
     { code: '028260', name: '삼성물산' },
     { code: '051910', name: 'LG화학' },
   ];
+
+  // 검색으로 선택된 종목이 있으면 해당 종목만, 없으면 기본 9개 종목
+  const dashboardStocks = searchedStock
+    ? [{ code: searchedStock.code, name: searchedStock.name }]
+    : defaultDashboardStocks;
 
   const [stocks, setStocks] = useState<Record<string, StockData>>({});
   const [selectedStock, setSelectedStock] = useState<{
@@ -53,10 +61,11 @@ const Dashboard = () => {
   // WebSocket URL 환경 변수에서 가져오기
   const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
 
-  // 초기 종목 데이터 로드 (REST API 사용)
+  // 종목 데이터 로드 (REST API 사용)
   useEffect(() => {
     const loadInitialStockData = async () => {
       try {
+        // 검색으로 선택된 종목이 변경되거나 기본 종목 목록 로드
         // 각 종목에 대해 종목명으로 검색하여 기본 정보 가져오기
         const stockPromises = dashboardStocks.map(async (stockInfo) => {
           try {
