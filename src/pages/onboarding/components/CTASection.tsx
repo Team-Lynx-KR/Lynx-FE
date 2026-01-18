@@ -7,13 +7,9 @@ const CTASection = () => {
     const downloadUrl = import.meta.env.VITE_DOWNLOAD_URL;
     
     if (downloadUrl) {
-      // 환경 변수에 다운로드 URL이 설정되어 있으면 파일 다운로드
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = 'Lynx-Setup.exe'; // 다운로드될 파일명
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // 다른 도메인 파일 다운로드는 window.location.href 사용
+      // 브라우저가 자동으로 다운로드 처리
+      window.location.href = downloadUrl;
     } else {
       // 다운로드 URL이 없으면 회원가입 페이지로 이동
       navigate('/signup');
