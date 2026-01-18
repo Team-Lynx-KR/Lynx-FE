@@ -323,7 +323,6 @@ const Dashboard = () => {
         name={stockInfo.name}
         code={stockInfo.code}
         price={stock?.price || 0}
-        change={stock?.change || 0}
         changePercent={stock?.changePercent || 0}
         isUp={(stock?.changePercent || 0) >= 0}
         onClick={(orderType) => {
