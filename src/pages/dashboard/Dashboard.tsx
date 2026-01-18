@@ -31,7 +31,7 @@ const Dashboard = () => {
     const connectWebSocket = async () => {
       try {
         console.log('[Dashboard] 🔄 KIS WebSocket 접속키 발급 시작...');
-        
+
         // KIS WebSocket 접속키 발급
         const authResponse = await getKISWebSocketAuth();
         const approvalKey = authResponse.approval_key;
@@ -41,16 +41,14 @@ const Dashboard = () => {
         const client = new WebSocketClient(wsUrl);
         wsClientRef.current = client;
         await client.connect(approvalKey);
-        
         console.log('[Dashboard] ✅ WebSocket 연결 성공 - 대시보드 데이터 수신 준비 완료');
-        
+
         // WebSocket 메시지 핸들러 등록 (실시간 데이터 처리)
         client.onRawMessage((data) => {
           console.log('[Dashboard] 📨 WebSocket 메시지 수신:', data);
           // TODO: 여기서 실시간 주식 데이터 처리 로직 추가
           // 예: 차트 업데이트, 가격 변경 등
         });
-
       } catch (error) {
         console.error('[Dashboard] ❌ WebSocket 연결 실패:', error);
       }
