@@ -28,10 +28,12 @@ class WebSocketClient {
           console.log('[WebSocket] 연결됨:', wsUrl);
           this.reconnectAttempts = 0;
 
-          // KIS WebSocket 인증 메시지 전송 (필요한 경우)
-          if (approvalKey) {
-            this.sendAuthMessage(approvalKey);
-          }
+          // KIS WebSocket은 URL 파라미터로 approval_key를 전달하므로
+          // 별도의 인증 메시지는 필요 없을 수 있음
+          // 필요시 구독 메시지에서 approval_key를 포함하여 전송
+          // if (approvalKey) {
+          //   this.sendAuthMessage(approvalKey);
+          // }
 
           resolve();
         };

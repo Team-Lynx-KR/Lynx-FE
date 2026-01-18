@@ -29,7 +29,26 @@ export interface StockSearchRequest {
 }
 
 export interface StockSearchResponse {
-  stocks: Array<{
+  message?: string;
+  stock: {
+    code: string;
+    name: string;
+    marketType?: string;
+    [key: string]: any;
+  };
+  prices?: Array<{
+    id: string;
+    code: string;
+    date: string;
+    open: number;
+    close: number;
+    high: number;
+    low: number;
+    volume: number;
+    [key: string]: any;
+  }>;
+  // 이전 형식과의 호환성을 위한 선택적 필드
+  stocks?: Array<{
     code: string;
     name: string;
     market: string;
