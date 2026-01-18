@@ -5,7 +5,6 @@ import IndicatorCard from '../../components/dashboard/ReportCard';
 import AIPanelCompact from '../../components/dashboard/AIPanelCompact';
 import NewsPanel from '../../components/dashboard/NewsPanel';
 import BuyOrderModal from '../../components/modal/BuyOrderModal';
-import WebSocketStatusPanel from '../../components/dashboard/WebSocketStatusPanel';
 import WebSocketClient from '../../utils/websocket';
 import { getKISWebSocketAuth, searchStock } from '../../api/stock';
 import { useAppStore } from '../../store/useAppStore';
@@ -26,7 +25,7 @@ interface StockData {
 }
 
 const Dashboard = () => {
-  const { searchedStock } = useAppStore();
+  const { searchedStock, setWsConnected, setWsClient } = useAppStore();
 
   // 대시보드에 표시할 종목 목록 (3x3 = 9개)
   const defaultDashboardStocks = [
@@ -56,7 +55,7 @@ const Dashboard = () => {
   } | null>(null);
   const wsClientRef = useRef<WebSocketClient | null>(null);
   const isConnectingRef = useRef<boolean>(false);
-  const [wsClient, setWsClient] = useState<WebSocketClient | null>(null);
+  const connectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // WebSocket URL 환경 변수에서 가져오기
   const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
@@ -201,7 +200,8 @@ const Dashboard = () => {
           return;
         }
 
-        // state 업데이트로 WebSocketStatusPanel에 전달
+        // 전역 상태에 연결 상태 및 클라이언트 인스턴스 저장 (Header에서 표시/로그용)
+        setWsConnected(true);
         setWsClient(client);
 
         console.log('[Dashboard] ✅ WebSocket 연결 성공 - 대시보드 데이터 수신 준비 완료');
@@ -217,8 +217,21 @@ const Dashboard = () => {
         console.log('[Dashboard] ℹ️ 구독 메시지는 메시지 형식 문제로 일시적으로 비활성화됨');
         console.log('[Dashboard] ℹ️ 백엔드 REST API를 통해 종목 데이터를 가져오는 것을 권장합니다');
 
+        // WebSocket 연결 상태 주기적 확인 (Header 표시용)
+        connectionIntervalRef.current = setInterval(() => {
+          if (wsClientRef.current && mounted) {
+            const isConnected = wsClientRef.current.isConnected();
+            setWsConnected(isConnected);
+          }
+        }, 1000); // 1초마다 확인
+
         // WebSocket 메시지 핸들러 등록 (실시간 데이터 처리)
         client.onRawMessage((data) => {
+          // 연결 상태 업데이트 (메시지 수신 시)
+          if (wsClientRef.current) {
+            setWsConnected(wsClientRef.current.isConnected());
+          }
+
           // PINGPONG 메시지는 무시
           if (data.header?.tr_id === 'PINGPONG') {
             return;
@@ -254,11 +267,15 @@ const Dashboard = () => {
           }
         });
 
+        // interval은 useEffect의 cleanup에서 제거
+
         // 연결 성공 시 플래그는 유지 (cleanup에서만 해제)
       } catch (error) {
         if (mounted) {
           console.error('[Dashboard] ❌ WebSocket 연결 실패:', error);
         }
+        // 에러 발생 시 연결 상태 업데이트
+        setWsConnected(false);
         // 에러 발생 시에만 플래그 해제
         globalConnectingFlag = false;
         isConnectingRef.current = false;
@@ -282,8 +299,15 @@ const Dashboard = () => {
       if (wsClientRef.current) {
         wsClientRef.current.disconnect();
         wsClientRef.current = null;
-        setWsClient(null); // state도 초기화
+        setWsConnected(false); // 전역 상태도 초기화
+        setWsClient(null); // 클라이언트 인스턴스도 초기화
         console.log('[Dashboard] WebSocket 연결 해제');
+      }
+
+      // 연결 상태 확인 interval 제거
+      if (connectionIntervalRef.current) {
+        clearInterval(connectionIntervalRef.current);
+        connectionIntervalRef.current = null;
       }
     };
   }, [wsUrl]);
@@ -294,7 +318,7 @@ const Dashboard = () => {
     const hasData = !!stock;
 
     return (
-      <StockChartCard
+        <StockChartCard
         key={stockInfo.code}
         name={stockInfo.name}
         code={stockInfo.code}
@@ -341,11 +365,6 @@ const Dashboard = () => {
         <div className="flex-shrink-0 flex-1 min-h-0" style={{ height: 'calc(33.333% - 8px)' }}>
           <NewsPanel />
         </div>
-      </div>
-
-      {/* WebSocket 상태 패널 (우측 상단) */}
-      <div className="absolute top-4 right-4 z-10">
-        <WebSocketStatusPanel wsClient={wsClient} />
       </div>
 
       {/* 주문 모달 */}

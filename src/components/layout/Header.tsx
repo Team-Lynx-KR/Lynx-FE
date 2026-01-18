@@ -10,13 +10,16 @@ interface SearchResult {
 }
 
 const Header = () => {
-  const { setSearchedStock } = useAppStore();
+  const { setSearchedStock, wsConnected, wsClient } = useAppStore();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [showWsLogs, setShowWsLogs] = useState(false);
+  const [wsLogs, setWsLogs] = useState<Array<{ timestamp: Date; data: any }>>([]);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const wsLogPanelRef = useRef<HTMLDivElement>(null);
 
   // 검색 API 호출 (debounce)
   useEffect(() => {
@@ -98,6 +101,12 @@ const Header = () => {
       ) {
         setShowResults(false);
       }
+      if (
+        wsLogPanelRef.current &&
+        !wsLogPanelRef.current.contains(event.target as Node)
+      ) {
+        setShowWsLogs(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -105,6 +114,23 @@ const Header = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // WebSocket 로그 업데이트
+  useEffect(() => {
+    if (!wsClient || !showWsLogs) return;
+
+    const updateLogs = () => {
+      const logs = wsClient.getMessageLog();
+      setWsLogs(logs);
+    };
+
+    // 초기 로그 로드
+    updateLogs();
+
+    // 주기적으로 로그 업데이트
+    const interval = setInterval(updateLogs, 500);
+    return () => clearInterval(interval);
+  }, [wsClient, showWsLogs]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(e.target.value);
@@ -164,6 +190,68 @@ const Header = () => {
       </div>
 
       <div className="flex items-center gap-2">
+        {/* WebSocket 연결 상태 표시 (점 또는 아이콘) - 클릭 시 로그 패널 표시 */}
+        <div className="relative" ref={wsLogPanelRef}>
+          <button
+            onClick={() => setShowWsLogs(!showWsLogs)}
+            className="cursor-pointer hover:opacity-80 transition-opacity"
+            title={wsConnected ? 'WebSocket 연결됨 (클릭하여 로그 보기)' : 'WebSocket 연결 끊김 (클릭하여 로그 보기)'}
+          >
+            {wsConnected ? (
+              <div className="w-3 h-3 rounded-full bg-green-500 shadow-lg shadow-green-500/50" />
+            ) : (
+              <div className="w-3 h-3 rounded-full bg-red-500 shadow-lg shadow-red-500/50" />
+            )}
+          </button>
+
+          {/* WebSocket 로그 패널 */}
+          {showWsLogs && (
+            <div className="absolute top-full right-0 mt-2 w-96 h-96 bg-dark-800 rounded-lg border border-dark-700 shadow-xl z-50 flex flex-col overflow-hidden">
+              {/* 헤더 */}
+              <div className="flex items-center justify-between p-3 border-b border-dark-700 bg-dark-700">
+                <span className="text-sm font-medium text-dark-100">WebSocket 로그</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    wsClient?.clearLog();
+                    setWsLogs([]);
+                  }}
+                  className="text-xs px-2 py-1 bg-dark-600 hover:bg-dark-500 text-dark-200 rounded transition-colors"
+                >
+                  지우기
+                </button>
+              </div>
+
+              {/* 로그 영역 */}
+              <div className="flex-1 overflow-y-auto p-3 font-mono text-xs">
+                {wsLogs.length === 0 ? (
+                  <div className="text-center text-dark-400 py-8">로그가 없습니다</div>
+                ) : (
+                  wsLogs.map((log, index) => (
+                    <div
+                      key={index}
+                      className="mb-2 p-2 bg-dark-700 rounded border border-dark-600 hover:bg-dark-600 transition-colors"
+                    >
+                      <div className="text-dark-400 text-xs mb-1">
+                        {log.timestamp.toLocaleTimeString('ko-KR', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                        })}
+                        .{log.timestamp.getMilliseconds().toString().padStart(3, '0')}
+                      </div>
+                      <pre className="text-dark-200 whitespace-pre-wrap break-words overflow-x-auto text-xs">
+                        {typeof log.data === 'string' ? log.data : JSON.stringify(log.data, null, 2)}
+                      </pre>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 알림 아이콘 */}
         <button className="p-2 text-dark-300 hover:text-dark-100 hover:bg-dark-700 rounded-lg transition-colors duration-200">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
