@@ -171,8 +171,8 @@ const NewsPanel = () => {
         return false;
       }
     }
-    // 'all'은 모든 뉴스 표시
 
+    // 'all'은 모든 뉴스 표시
     // 카테고리 필터링
     if (selectedCategory !== 'all' && news.category !== selectedCategory) return false;
 

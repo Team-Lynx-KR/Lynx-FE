@@ -45,7 +45,7 @@ const fetchWithProxy = async (url: string): Promise<string> => {
       const response = await fetch(proxyUrl, {
         method: 'GET',
         headers: {
-          'Accept': 'application/xml, text/xml, */*',
+          Accept: 'application/xml, text/xml, */*',
         },
       });
 
@@ -134,12 +134,12 @@ const parseRSSXML = (xmlString: string): RSSNewsItem[] => {
 export const parseRSSFeed = async (url: string): Promise<RSSNewsItem[]> => {
   try {
     const xmlString = await fetchWithProxy(url);
-    
+
     // 빈 문자열인 경우 (모든 프록시 실패) 빈 배열 반환
     if (!xmlString || xmlString.trim().length === 0) {
       return [];
     }
-    
+
     return parseRSSXML(xmlString);
   } catch (error) {
     // 개별 피드 실패는 조용히 처리 (다른 피드는 성공할 수 있음)
@@ -149,9 +149,7 @@ export const parseRSSFeed = async (url: string): Promise<RSSNewsItem[]> => {
 };
 
 // 여러 RSS 피드에서 뉴스 가져오기
-export const fetchMultipleRSSFeeds = async (
-  urls: string[]
-): Promise<RSSNewsItem[]> => {
+export const fetchMultipleRSSFeeds = async (urls: string[]): Promise<RSSNewsItem[]> => {
   try {
     const results = await Promise.allSettled(urls.map((url) => parseRSSFeed(url)));
 
@@ -176,10 +174,6 @@ export const fetchMultipleRSSFeeds = async (
 
 // 한국 주식 관련 RSS 피드 URL 목록
 export const STOCK_RSS_FEEDS = [
-  // 연합인포맥스 투자/증권 뉴스
-  'https://www.yonhapinfomax.com/rss/invest.xml',
   // 한국경제 경제 뉴스
   'https://www.hankyung.com/feed/economy',
-  // 추가 RSS 피드 URL을 여기에 추가할 수 있습니다
 ];
-
