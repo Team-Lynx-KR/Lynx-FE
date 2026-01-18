@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import NewsDetailModal from '../modal/NewsDetailModal';
 import { fetchMultipleRSSFeeds, STOCK_RSS_FEEDS, RSSNewsItem } from '../../utils/rssParser';
 
 type FilterType = 'all' | 'realtime' | 'popular';
@@ -94,11 +93,6 @@ interface NewsItem {
 }
 
 const NewsPanel = () => {
-  const [selectedNews, setSelectedNews] = useState<{
-    title: string;
-    time: string;
-    sentiment: 'positive' | 'negative' | 'neutral';
-  } | null>(null);
   const [filterType, setFilterType] = useState<FilterType>('realtime');
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('all');
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
@@ -265,11 +259,6 @@ const NewsPanel = () => {
                 key={news.id}
                 className="p-3 rounded-lg cursor-pointer hover:bg-dark-700/50 transition-all duration-200"
                 onClick={() => {
-                  setSelectedNews({
-                    title: news.title,
-                    time: news.time,
-                    sentiment: news.sentiment,
-                  });
                   // 링크가 있으면 새 탭에서 열기
                   if (news.link) {
                     window.open(news.link, '_blank');

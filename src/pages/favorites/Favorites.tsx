@@ -41,13 +41,12 @@ const Favorites = () => {
     <div className="flex h-full w-full gap-4 p-4 overflow-hidden">
       {favoriteStocks.length > 0 ? (
         <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-2 min-w-0">
-          {favoriteStocks.map((stock, index) => (
+          {favoriteStocks.map((stock) => (
             <StockChartCard
               key={stock.code}
               name={stock.name}
               code={stock.code}
               price={stock.price}
-              change={stock.changePercent > 0 ? stock.price * (stock.changePercent / 100) : stock.price * (stock.changePercent / 100)}
               changePercent={stock.changePercent}
               isUp={stock.changePercent >= 0}
               onClick={(orderType) =>

@@ -1,11 +1,9 @@
-import { designTokens } from '../../design/tokens';
-
 interface IndicatorCardProps {
   stockName?: string;
   onClick?: () => void;
 }
 
-const IndicatorCard = ({ stockName = '삼성전자', onClick }: IndicatorCardProps) => {
+const IndicatorCard = ({ stockName: _stockName = '삼성전자', onClick }: IndicatorCardProps) => {
   return (
     <div
       className="rounded-lg border border-dark-800 p-4 flex flex-col cursor-pointer hover:opacity-90 transition-opacity duration-200 h-full"

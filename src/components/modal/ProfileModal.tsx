@@ -1,4 +1,3 @@
-import { designTokens } from '../../design/tokens';
 import { useState } from 'react';
 
 interface ProfileModalProps {

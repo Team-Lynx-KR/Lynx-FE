@@ -5,7 +5,6 @@ interface StockChartCardProps {
   name: string;
   code: string;
   price: number;
-  change: number;
   changePercent: number;
   isUp: boolean; // 상승(true) 또는 하락(false)
   onClick?: (orderType: 'buy' | 'sell') => void;
@@ -15,7 +14,6 @@ const StockChartCard = ({
   name,
   code,
   price,
-  change,
   changePercent,
   isUp,
   onClick,

@@ -1,9 +1,7 @@
-import { useNavigate } from 'react-router-dom';
 import { designTokens } from '../../../design/tokens';
 import StatsSection from './StatsSection';
 
 const HeroSection = () => {
-  const navigate = useNavigate();
 
   return (
     <section

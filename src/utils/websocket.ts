@@ -97,26 +97,27 @@ class WebSocketClient {
     });
   }
 
-  private sendAuthMessage(approvalKey: string) {
-    // KIS WebSocket 인증 메시지 형식에 맞게 전송
-    // 실제 프로토콜에 맞게 조정 필요
-    const authMessage = {
-      header: {
-        approval_key: approvalKey,
-        custtype: 'P',
-        tr_type: '1',
-        'content-type': 'utf-8',
-      },
-      body: {
-        input: {
-          tr_id: '',
-          tr_key: '',
-        },
-      },
-    };
-
-    this.sendRaw(JSON.stringify(authMessage));
-  }
+  // private sendAuthMessage(approvalKey: string) {
+  //   // KIS WebSocket 인증 메시지 형식에 맞게 전송
+  //   // 실제 프로토콜에 맞게 조정 필요
+  //   // 현재 사용하지 않으므로 주석 처리
+  //   const authMessage = {
+  //     header: {
+  //       approval_key: approvalKey,
+  //       custtype: 'P',
+  //       tr_type: '1',
+  //       'content-type': 'utf-8',
+  //     },
+  //     body: {
+  //       input: {
+  //         tr_id: '',
+  //         tr_key: '',
+  //       },
+  //     },
+  //   };
+  //
+  //   this.sendRaw(JSON.stringify(authMessage));
+  // }
 
   private addToLog(timestamp: Date, data: any) {
     this.messageLog.push({ timestamp, data });
