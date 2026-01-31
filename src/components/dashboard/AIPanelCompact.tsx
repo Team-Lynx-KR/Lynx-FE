@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react';
 import { createChart, IChartApi } from 'lightweight-charts';
 import { designTokens } from '../../design/tokens';
@@ -29,15 +30,15 @@ const AIPanelCompact = ({
   const [isBuyOrderModalOpen, setIsBuyOrderModalOpen] = useState(false);
   const [isSellOrderModalOpen, setIsSellOrderModalOpen] = useState(false);
   const [themeChangeKey, setThemeChangeKey] = useState(0);
-  const [_aiAnalysisData, _setAiAnalysisData] = useState<any>(null); // 추후 API 데이터 저장용
+  const [aiAnalysisData, setAiAnalysisData] = useState<any>(null);
 
   // 검색한 종목 정보
-  const [searchKeyword, setSearchKeyword] = useState<string>(''); // 기본값 공란
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [currentStockName, setCurrentStockName] = useState<string>(initialStockName || '');
   const [currentStockCode, setCurrentStockCode] = useState<string>(initialStockCode || '');
-  const [hasSearched, setHasSearched] = useState<boolean>(false); // 검색 시도 여부
+  const [hasSearched, setHasSearched] = useState<boolean>(false);
 
-  // 초기 종목명이 변경되면 currentStockName만 업데이트 (검색어는 공란 유지)
+  // 초기 종목명이 변경되면 currentStockName만 업데이트
   useEffect(() => {
     if (initialStockName) {
       setCurrentStockName(initialStockName);
