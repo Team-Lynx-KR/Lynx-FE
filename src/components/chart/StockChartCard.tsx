@@ -34,21 +34,21 @@ const StockChartCard = ({
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
-            // CSS 변수에서 색상 가져오기
-            const bgColor = getComputedStyle(document.documentElement)
-              .getPropertyValue('--color-dark-800')
-              .trim() || '#1a1a1a';
-            const textColor = getComputedStyle(document.documentElement)
-              .getPropertyValue('--color-dark-400')
-              .trim() || '#a3a3a3';
+    // CSS 변수에서 색상 가져오기
+    const bgColor =
+      getComputedStyle(document.documentElement).getPropertyValue('--color-dark-800').trim() ||
+      '#1a1a1a';
+    const textColor =
+      getComputedStyle(document.documentElement).getPropertyValue('--color-dark-400').trim() ||
+      '#a3a3a3';
 
-            const chart = createChart(chartContainerRef.current, {
-              width: chartContainerRef.current.clientWidth,
-              height: chartContainerRef.current.clientHeight,
-              layout: {
-                background: { color: bgColor },
-                textColor: textColor,
-              },
+    const chart = createChart(chartContainerRef.current, {
+      width: chartContainerRef.current.clientWidth,
+      height: chartContainerRef.current.clientHeight,
+      layout: {
+        background: { color: bgColor },
+        textColor: textColor,
+      },
       grid: {
         vertLines: { visible: false },
         horzLines: { visible: false },
@@ -79,7 +79,7 @@ const StockChartCard = ({
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
-      
+
       // 랜덤 가격 변동 생성 (현재 가격 기준)
       const basePrice = price * (0.9 + (i / 50) * 0.2); // 시간에 따른 기본 가격 추세
       const variation = basePrice * 0.02; // 변동폭 2%
@@ -87,7 +87,7 @@ const StockChartCard = ({
       const close = open + (Math.random() - 0.5) * variation * 2;
       const high = Math.max(open, close) + Math.random() * variation;
       const low = Math.min(open, close) - Math.random() * variation;
-      
+
       return {
         time: `${year}-${month}-${day}` as const,
         open: Math.round(open),
