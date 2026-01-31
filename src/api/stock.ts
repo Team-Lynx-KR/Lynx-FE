@@ -256,3 +256,37 @@ export const getDashboardStocks = async (): Promise<DashboardStockResponse> => {
     throw error;
   }
 };
+
+// 종목별 뉴스 조회 요청
+export interface StockNewsRequest {
+  keyword: string;
+}
+
+// 종목별 뉴스 조회 응답
+export interface StockNewsResponse {
+  message: string;
+  news: Array<{
+    title: string;
+    link: string;
+    description?: string;
+    publishedAt?: string;
+    [key: string]: any;
+  }>;
+}
+
+/**
+ * 종목별 뉴스 조회 (최신순 5개)
+ */
+export const getStockNews = async (data: StockNewsRequest): Promise<StockNewsResponse> => {
+  try {
+    const response = await apiClient.post<StockNewsResponse>('/stock/news', data);
+    console.log('[Stock API] ✅ 종목별 뉴스 조회 성공:', { keyword: data.keyword });
+    return response.data;
+  } catch (error: any) {
+    console.error('[Stock API] ❌ 종목별 뉴스 조회 실패:', {
+      status: error.response?.status,
+      message: error.response?.data?.message || error.message,
+    });
+    throw error;
+  }
+};

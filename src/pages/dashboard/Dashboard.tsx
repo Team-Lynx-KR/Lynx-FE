@@ -387,7 +387,7 @@ const Dashboard = () => {
 
         {/* 뉴스 */}
         <div className="flex-shrink-0 flex-1 min-h-0" style={{ height: 'calc(33.333% - 8px)' }}>
-          <NewsPanel />
+          <NewsPanel stockName={dashboardStocks[0]?.name} />
         </div>
       </div>
 
