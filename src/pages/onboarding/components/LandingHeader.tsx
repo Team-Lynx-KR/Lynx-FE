@@ -1,9 +1,33 @@
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { designTokens } from '../../../design/tokens';
 import logo from '@/assets/img/logo.svg';
+import { getLatestRelease, getDownloadUrlForOS, detectOS } from '../../../api/github';
 
 const LandingHeader = () => {
   const navigate = useNavigate();
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+
+  // GitHub 릴리즈 정보 가져오기
+  useEffect(() => {
+    const fetchLatestRelease = async () => {
+      const release = await getLatestRelease();
+      if (release) {
+        const os = detectOS();
+        const url = getDownloadUrlForOS(release, os);
+        setDownloadUrl(url);
+        console.log('[LandingHeader] 최신 릴리즈:', release.tag_name, '다운로드 URL:', url);
+      } else {
+        // GitHub API 실패 시 기존 환경 변수 사용
+        const fallbackUrl = import.meta.env.VITE_DOWNLOAD_URL;
+        if (fallbackUrl) {
+          setDownloadUrl(fallbackUrl);
+        }
+      }
+    };
+
+    fetchLatestRelease();
+  }, []);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -13,8 +37,6 @@ const LandingHeader = () => {
   };
 
   const handleDownload = () => {
-    const downloadUrl = import.meta.env.VITE_DOWNLOAD_URL;
-    
     if (downloadUrl) {
       // 다른 도메인 파일 다운로드는 window.location.href 사용
       // 브라우저가 자동으로 다운로드 처리

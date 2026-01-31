@@ -30,7 +30,7 @@ const AIPanelCompact = ({
   const [isBuyOrderModalOpen, setIsBuyOrderModalOpen] = useState(false);
   const [isSellOrderModalOpen, setIsSellOrderModalOpen] = useState(false);
   const [themeChangeKey, setThemeChangeKey] = useState(0);
-  const [aiAnalysisData, setAiAnalysisData] = useState<any>(null);
+  const [_aiAnalysisData, _setAiAnalysisData] = useState<any>(null); // 추후 API 데이터 저장용
 
   // 검색한 종목 정보
   const [searchKeyword, setSearchKeyword] = useState<string>('');
