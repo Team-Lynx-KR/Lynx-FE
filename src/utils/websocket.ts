@@ -25,15 +25,8 @@ class WebSocketClient {
         this.ws = new WebSocket(wsUrl);
 
         this.ws.onopen = () => {
-          console.log('[WebSocket] 연결됨:', wsUrl);
+          // console.log('[WebSocket] 연결됨:', wsUrl);
           this.reconnectAttempts = 0;
-
-          // KIS WebSocket은 URL 파라미터로 approval_key를 전달하므로
-          // 별도의 인증 메시지는 필요 없을 수 있음
-          // 필요시 구독 메시지에서 approval_key를 포함하여 전송
-          // if (approvalKey) {
-          //   this.sendAuthMessage(approvalKey);
-          // }
 
           resolve();
         };

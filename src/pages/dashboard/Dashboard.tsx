@@ -47,13 +47,13 @@ const Dashboard = () => {
     changePercent: number;
     orderType: 'buy' | 'sell';
   } | null>(null);
-  
+
   // 로딩 상태 관리
   const [_isStockDataLoading, setIsStockDataLoading] = useState(true); // 추후 로딩 UI에 사용 예정
   const [isAILoading, setIsAILoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null); // AI 분석 에러 메시지
   const [hasAIData, setHasAIData] = useState(false); // AI 분석 데이터 존재 여부
-  
+
   // AI 분석 데이터 (추후 API 연동 시 사용)
   const [aiAnalysisKeyword, setAiAnalysisKeyword] = useState<string | null>(null); // 검색 키워드
 
@@ -69,7 +69,7 @@ const Dashboard = () => {
     const loadStockData = async () => {
       try {
         setIsStockDataLoading(true);
-        
+
         // 검색으로 선택된 종목이 있으면 기존 로직 사용
         if (searchedStock) {
           try {
@@ -204,7 +204,7 @@ const Dashboard = () => {
         setIsAILoading(true);
         setAiError(null);
         setHasAIData(false);
-        
+
         // TODO: AI 분석 API 연동
         // const response = await getAIAnalysis({ keyword: aiAnalysisKeyword.trim() });
         // if (response && response.data) {
@@ -214,9 +214,9 @@ const Dashboard = () => {
         //   setHasAIData(false);
         //   setAiError('AI 분석 데이터를 불러올 수 없습니다.');
         // }
-        
+
         console.log('[Dashboard] 🔮 AI 분석 요청 (추후 구현):', aiAnalysisKeyword);
-        
+
         // 임시로 2초 후 완료 처리 (실제 API 연동 시 제거)
         // 실제로는 API 응답에 따라 성공/실패 처리
         setTimeout(() => {
@@ -295,11 +295,6 @@ const Dashboard = () => {
         // 전역 상태에 연결 상태 및 클라이언트 인스턴스 저장 (Header에서 표시/로그용)
         setWsConnected(true);
         setWsClient(client);
-
-        console.log('[Dashboard] ✅ WebSocket 연결 성공 - 대시보드 데이터 수신 준비 완료');
-        console.log('[Dashboard] ⚠️ WebSocket 연결 완료 (PINGPONG만 수신 중)');
-        console.log('[Dashboard] ℹ️ 구독 메시지는 메시지 형식 문제로 일시적으로 비활성화됨');
-        console.log('[Dashboard] ℹ️ 백엔드 REST API를 통해 종목 데이터를 가져오는 것을 권장합니다');
 
         // WebSocket 연결 상태 주기적 확인 (Header 표시용)
         connectionIntervalRef.current = setInterval(() => {
@@ -452,7 +447,7 @@ const Dashboard = () => {
       <div className="w-80 flex flex-col gap-4 h-full overflow-hidden">
         {/* AI 예측 */}
         <div className="flex-shrink-0" style={{ height: 'calc(45% - 10.67px)' }}>
-          <AIPanelCompact 
+          <AIPanelCompact
             stockName={dashboardStocks[0]?.name}
             stockCode={dashboardStocks[0]?.code}
             isLoading={isAILoading}
