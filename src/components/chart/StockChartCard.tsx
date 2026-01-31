@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react';
 import { createChart, IChartApi } from 'lightweight-charts';
 
@@ -7,6 +8,14 @@ interface StockChartCardProps {
   price: number;
   changePercent: number;
   isUp: boolean; // 상승(true) 또는 하락(false)
+  dailyPrices?: Array<{
+    date: string;
+    open: number;
+    close: number;
+    high: number;
+    low: number;
+    volume: string;
+  }>;
   onClick?: (orderType: 'buy' | 'sell') => void;
 }
 
@@ -16,6 +25,7 @@ const StockChartCard = ({
   price,
   changePercent,
   isUp,
+  dailyPrices,
   onClick,
 }: StockChartCardProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -34,30 +44,85 @@ const StockChartCard = ({
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
-            // CSS 변수에서 색상 가져오기
-            const bgColor = getComputedStyle(document.documentElement)
-              .getPropertyValue('--color-dark-800')
-              .trim() || '#1a1a1a';
-            const textColor = getComputedStyle(document.documentElement)
-              .getPropertyValue('--color-dark-400')
-              .trim() || '#a3a3a3';
+    // CSS 변수에서 색상 가져오기
+    const bgColor =
+      getComputedStyle(document.documentElement).getPropertyValue('--color-dark-800').trim() ||
+      '#1a1a1a';
+    const textColor =
+      getComputedStyle(document.documentElement).getPropertyValue('--color-dark-400').trim() ||
+      '#a3a3a3';
 
-            const chart = createChart(chartContainerRef.current, {
-              width: chartContainerRef.current.clientWidth,
-              height: chartContainerRef.current.clientHeight,
-              layout: {
-                background: { color: bgColor },
-                textColor: textColor,
-              },
+    const chart = createChart(chartContainerRef.current, {
+      width: chartContainerRef.current.clientWidth,
+      height: chartContainerRef.current.clientHeight,
+      layout: {
+        background: { color: bgColor },
+        textColor: textColor,
+      },
       grid: {
-        vertLines: { visible: false },
-        horzLines: { visible: false },
+        vertLines: { visible: true, color: 'rgba(163, 163, 163, 0.1)' },
+        horzLines: { visible: true, color: 'rgba(163, 163, 163, 0.1)' },
       },
       timeScale: {
-        visible: false,
+        visible: true,
+        timeVisible: true,
+        borderColor: 'rgba(163, 163, 163, 0.2)',
+        tickMarkFormatter: (time: any, _tickMarkType: any, _locale: string) => {
+          // time이 문자열인 경우 (YYYY-MM-DD 형식)
+          if (typeof time === 'string') {
+            const date = new Date(time);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+
+            // "2026년 1월 16일 00:00" 형식
+            return `${year}년 ${month}월 ${day}일 ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+          }
+
+          // time이 숫자인 경우 (타임스탬프)
+          if (typeof time === 'number') {
+            const date = new Date(time * 1000); // 초 단위 타임스탬프를 밀리초로 변환
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+
+            return `${year}년 ${month}월 ${day}일 ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+          }
+
+          // 기본값
+          return String(time);
+        },
       },
       rightPriceScale: {
-        visible: false,
+        visible: false, // 오른쪽 Y축 비활성화
+      },
+      leftPriceScale: {
+        visible: true, // 왼쪽 Y축 활성화
+        borderColor: 'rgba(163, 163, 163, 0.2)',
+        textColor: textColor,
+        scaleMargins: {
+          top: 0.1,
+          bottom: 0.1,
+        },
+      },
+      crosshair: {
+        mode: 1, // Normal mode (크로스헤어 표시)
+        vertLine: {
+          visible: true,
+          color: 'rgba(163, 163, 163, 0.5)',
+          width: 1,
+          style: 0, // Solid line
+        },
+        horzLine: {
+          visible: true,
+          color: 'rgba(163, 163, 163, 0.5)',
+          width: 1,
+          style: 0, // Solid line
+        },
       },
     });
 
@@ -69,35 +134,57 @@ const StockChartCard = ({
       borderDownColor: '#E74C3C',
       wickUpColor: '#4A90E2',
       wickDownColor: '#E74C3C',
+      priceFormat: {
+        type: 'price',
+        precision: 0,
+        minMove: 1,
+      },
+      priceLineVisible: true, // 가격 라인 표시
     });
 
-    // 캔들스틱 데이터 생성 (OHLC 형식)
-    const now = new Date();
-    const sampleCandlestickData = Array.from({ length: 50 }, (_, i) => {
-      const date = new Date(now);
-      date.setDate(date.getDate() - (49 - i));
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      
-      // 랜덤 가격 변동 생성 (현재 가격 기준)
-      const basePrice = price * (0.9 + (i / 50) * 0.2); // 시간에 따른 기본 가격 추세
-      const variation = basePrice * 0.02; // 변동폭 2%
-      const open = basePrice + (Math.random() - 0.5) * variation;
-      const close = open + (Math.random() - 0.5) * variation * 2;
-      const high = Math.max(open, close) + Math.random() * variation;
-      const low = Math.min(open, close) - Math.random() * variation;
-      
-      return {
-        time: `${year}-${month}-${day}` as const,
-        open: Math.round(open),
-        high: Math.round(high),
-        low: Math.round(low),
-        close: Math.round(close),
-      };
-    });
+    // 실제 데이터가 있으면 사용, 없으면 샘플 데이터 생성
+    let candlestickData;
 
-    candlestickSeries.setData(sampleCandlestickData);
+    if (dailyPrices && dailyPrices.length > 0) {
+      // API에서 받은 실제 데이터 사용
+      candlestickData = dailyPrices
+        .slice()
+        .reverse() // 최신 데이터가 앞에 있으므로 역순으로 정렬
+        .map((price) => ({
+          time: price.date,
+          open: price.open,
+          high: price.high,
+          low: price.low,
+          close: price.close,
+        }));
+    } else {
+      // 샘플 데이터 생성 (fallback)
+      const now = new Date();
+      candlestickData = Array.from({ length: 50 }, (_, i) => {
+        const date = new Date(now);
+        date.setDate(date.getDate() - (49 - i));
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        const basePrice = price * (0.9 + (i / 50) * 0.2);
+        const variation = basePrice * 0.02;
+        const open = basePrice + (Math.random() - 0.5) * variation;
+        const close = open + (Math.random() - 0.5) * variation * 2;
+        const high = Math.max(open, close) + Math.random() * variation;
+        const low = Math.min(open, close) - Math.random() * variation;
+
+        return {
+          time: `${year}-${month}-${day}` as const,
+          open: Math.round(open),
+          high: Math.round(high),
+          low: Math.round(low),
+          close: Math.round(close),
+        };
+      });
+    }
+
+    candlestickSeries.setData(candlestickData);
     chartRef.current = chart;
 
     // TradingView 워터마크 제거 함수
@@ -139,7 +226,7 @@ const StockChartCard = ({
       observer.disconnect();
       chart.remove();
     };
-  }, [price, isUp, themeChangeKey]);
+  }, [price, isUp, themeChangeKey, dailyPrices]); // dailyPrices 의존성 추가
 
   // 테마 변경 감지
   useEffect(() => {

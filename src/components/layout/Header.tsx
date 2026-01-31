@@ -101,10 +101,7 @@ const Header = () => {
       ) {
         setShowResults(false);
       }
-      if (
-        wsLogPanelRef.current &&
-        !wsLogPanelRef.current.contains(event.target as Node)
-      ) {
+      if (wsLogPanelRef.current && !wsLogPanelRef.current.contains(event.target as Node)) {
         setShowWsLogs(false);
       }
     };
@@ -146,7 +143,7 @@ const Header = () => {
 
   return (
     <header
-      className="border-dark-800 flex items-center justify-between px-6 py-4 mb-4"
+      className="border-dark-800 flex items-center justify-between px-4 py-4"
       style={{ backgroundColor: 'var(--color-dark-800)' }}
     >
       <div className="flex items-center gap-6 flex-1">
@@ -195,7 +192,11 @@ const Header = () => {
           <button
             onClick={() => setShowWsLogs(!showWsLogs)}
             className="cursor-pointer hover:opacity-80 transition-opacity"
-            title={wsConnected ? 'WebSocket 연결됨 (클릭하여 로그 보기)' : 'WebSocket 연결 끊김 (클릭하여 로그 보기)'}
+            title={
+              wsConnected
+                ? 'WebSocket 연결됨 (클릭하여 로그 보기)'
+                : 'WebSocket 연결 끊김 (클릭하여 로그 보기)'
+            }
           >
             {wsConnected ? (
               <div className="w-3 h-3 rounded-full bg-green-500 shadow-lg shadow-green-500/50" />
@@ -241,7 +242,9 @@ const Header = () => {
                         .{log.timestamp.getMilliseconds().toString().padStart(3, '0')}
                       </div>
                       <pre className="text-dark-200 whitespace-pre-wrap break-words overflow-x-auto text-xs">
-                        {typeof log.data === 'string' ? log.data : JSON.stringify(log.data, null, 2)}
+                        {typeof log.data === 'string'
+                          ? log.data
+                          : JSON.stringify(log.data, null, 2)}
                       </pre>
                     </div>
                   ))
