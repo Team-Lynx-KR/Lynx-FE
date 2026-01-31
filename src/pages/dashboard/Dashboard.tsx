@@ -122,6 +122,15 @@ const Dashboard = () => {
 
         // 기본 대시보드 종목 데이터 로드
         const response = await getDashboardStocks();
+        console.log('[Dashboard] 📊 대시보드 API 호출 결과:', {
+          message: response?.message,
+          stocksCount: response?.stocks?.length || 0,
+          stocks: response?.stocks?.map((s) => ({
+            code: s.code,
+            name: s.name,
+            dailyPricesCount: s.dailyPrices?.length || 0,
+          })),
+        });
 
         if (!response || !response.stocks || response.stocks.length === 0) {
           console.warn('[Dashboard] ⚠️ 대시보드 종목 데이터가 없습니다.');
@@ -185,10 +194,6 @@ const Dashboard = () => {
     loadStockData();
   }, [searchedStock]); // searchedStock 변경 시 재로드
 
-  // 2. 종목별 뉴스 데이터 요청 (독립적으로 처리)
-  // NewsPanel 컴포넌트에서 자체적으로 처리하므로 여기서는 로딩 상태만 관리
-  // NewsPanel에 stockName prop을 전달하여 자동으로 뉴스를 로드하도록 함
-
   // 3. AI 분석 요청 (검색 키워드 기반)
   const handleAIAnalysis = (keyword: string) => {
     setAiAnalysisKeyword(keyword);
@@ -205,27 +210,13 @@ const Dashboard = () => {
         setAiError(null);
         setHasAIData(false);
 
-        // TODO: AI 분석 API 연동
-        // const response = await getAIAnalysis({ keyword: aiAnalysisKeyword.trim() });
-        // if (response && response.data) {
-        //   setHasAIData(true);
-        //   setAiError(null);
-        // } else {
-        //   setHasAIData(false);
-        //   setAiError('AI 분석 데이터를 불러올 수 없습니다.');
-        // }
-
         console.log('[Dashboard] 🔮 AI 분석 요청 (추후 구현):', aiAnalysisKeyword);
 
-        // 임시로 2초 후 완료 처리 (실제 API 연동 시 제거)
-        // 실제로는 API 응답에 따라 성공/실패 처리
         setTimeout(() => {
-          // 임시: 항상 실패로 처리 (에러 메시지 테스트용)
-          // 실제 API 연동 시 성공 시 setHasAIData(true), 실패 시 setAiError('...')
           setHasAIData(false);
           setAiError('AI 분석 기능은 아직 구현되지 않았습니다.');
           setIsAILoading(false);
-          setAiAnalysisKeyword(null); // 완료 후 리셋
+          setAiAnalysisKeyword(null);
         }, 2000);
       } catch (error: any) {
         console.error('[Dashboard] ❌ AI 분석 로드 실패:', error);
@@ -238,13 +229,6 @@ const Dashboard = () => {
 
     loadAIAnalysis();
   }, [aiAnalysisKeyword]);
-
-  // 자동 로드 옵션 (추후 필요 시 활성화)
-  // useEffect(() => {
-  //   if (dashboardStocksList.length > 0 && !shouldLoadAI && !isAILoading) {
-  //     setShouldLoadAI(true); // 자동으로 AI 분석 요청
-  //   }
-  // }, [dashboardStocksList]);
 
   // Dashboard 마운트 시 WebSocket 자동 연결 (로그인 성공 후 자동 실행)
   useEffect(() => {
@@ -316,8 +300,7 @@ const Dashboard = () => {
             return;
           }
 
-          // 주식 데이터 처리 (KIS WebSocket 형식에 맞게 파싱)
-          // TODO: 실제 WebSocket 메시지 구조에 맞게 수정 필요
+          // 주식 데이터 처리
           if (data.body && data.header?.tr_id) {
             try {
               const stockCode = data.body.iscd_stat_cls_code || data.body.stck_cd;
@@ -369,7 +352,6 @@ const Dashboard = () => {
       mounted = false;
 
       // 연결이 완료되지 않은 경우에만 플래그 해제
-      // (Strict Mode cleanup에서도 연결 중이면 계속 유지)
       if (!wsClientRef.current?.isConnected()) {
         globalConnectingFlag = false;
         isConnectingRef.current = false;
@@ -453,8 +435,8 @@ const Dashboard = () => {
             isLoading={isAILoading}
             hasData={hasAIData}
             error={aiError}
-            onAnalyzeClick={handleAIAnalysis} // 검색 키워드 전달
-            autoLoad={false} // 자동 로드 옵션 (true로 변경 시 자동 요청)
+            onAnalyzeClick={handleAIAnalysis}
+            autoLoad={false}
           />
         </div>
 
