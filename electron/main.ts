@@ -5,6 +5,11 @@ import path from 'path';
 // 개발 모드인지 확인
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
+// 디버깅: 현재 모드 확인
+console.log('[Electron] NODE_ENV:', process.env.NODE_ENV);
+console.log('[Electron] app.isPackaged:', app.isPackaged);
+console.log('[Electron] isDev:', isDev);
+
 let mainWindow: Electron.BrowserWindow | null = null;
 
 function createWindow() {
@@ -20,39 +25,76 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: true,
+      webSecurity: true, // HTTPS 사용 시 true
     },
   });
 
-  // 개발 모드에서는 Vite 개발 서버, 프로덕션에서는 빌드된 파일
-  if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
+  // 개발 모드에서는 Vite 개발 서버, 프로덕션에서는 Vercel 배포 URL
+  // app.isPackaged를 명시적으로 확인
+  if (!app.isPackaged && process.env.NODE_ENV !== 'production') {
+    console.log('[Electron] 🛠️ Development mode: Loading fromh lynx-fe.vercel.app/');
+    mainWindow.loadURL('https://lynx-fe.vercel.app/');
     mainWindow.webContents.openDevTools();
     mainWindow.show(); // 개발 모드에서는 즉시 표시
   } else {
-    // 프로덕션 모드: file:// 프로토콜 사용하여 상대 경로 리소스 정상 로드
-    const appPath = app.getAppPath();
-    const htmlPath = path.join(appPath, 'dist', 'index.html');
-    
-    // Windows 경로를 file:// URL 형식으로 변환
-    const fileUrl = process.platform === 'win32'
-      ? `file:///${htmlPath.replace(/\\/g, '/')}`
-      : `file://${htmlPath}`;
-    
-    console.log('[Electron] Loading HTML from:', htmlPath);
-    console.log('[Electron] File URL:', fileUrl);
-    
-    mainWindow.loadURL(fileUrl)
-      .then(() => {
-        console.log('[Electron] ✅ Successfully loaded HTML');
-        mainWindow?.show();
-      })
-      .catch((error) => {
-        console.error('[Electron] ❌ Failed to load HTML:', error);
-        // 개발자 도구 열어서 디버깅
-        mainWindow?.webContents.openDevTools();
-        mainWindow?.show();
-      });
+    // 프로덕션 모드: Vercel 배포 URL 사용
+    const deployUrl = 'https://lynx-fe.vercel.app/';
+
+    console.log('[Electron] 🚀 Production mode: Loading from deploy URL:', deployUrl);
+
+    // 개발자 도구 열기 (디버깅용)
+    mainWindow.webContents.openDevTools();
+
+    // 로드 완료 이벤트
+    mainWindow.webContents.on('did-finish-load', () => {
+      console.log('[Electron] ✅ Page finished loading');
+      mainWindow?.show();
+    });
+
+    // 에러 핸들러 추가
+    mainWindow.webContents.on(
+      'did-fail-load',
+      (_event, errorCode, errorDescription, validatedURL) => {
+        console.error('[Electron] Failed to load resource:', {
+          errorCode,
+          errorDescription,
+          validatedURL,
+        });
+        // 폴백: 로컬 파일 사용
+        const appPath = app.getAppPath();
+        const htmlPath = path.join(appPath, 'dist', 'index.html');
+        console.log('[Electron] Trying fallback to local file:', htmlPath);
+        mainWindow
+          ?.loadFile(htmlPath)
+          .then(() => {
+            console.log('[Electron] ✅ Successfully loaded from local file');
+            mainWindow?.show();
+          })
+          .catch((fallbackError) => {
+            console.error('[Electron] ❌ Failed to load from local file:', fallbackError);
+            mainWindow?.show();
+          });
+      }
+    );
+
+    // 페이지 로드 시작
+    mainWindow.loadURL(deployUrl).catch((error) => {
+      console.error('[Electron] ❌ Failed to load from deploy URL:', error);
+      // 폴백: 로컬 파일 사용
+      const appPath = app.getAppPath();
+      const htmlPath = path.join(appPath, 'dist', 'index.html');
+      console.log('[Electron] Trying fallback to local file:', htmlPath);
+      mainWindow
+        ?.loadFile(htmlPath)
+        .then(() => {
+          console.log('[Electron] ✅ Successfully loaded from local file');
+          mainWindow?.show();
+        })
+        .catch((fallbackError) => {
+          console.error('[Electron] ❌ Failed to load from local file:', fallbackError);
+          mainWindow?.show();
+        });
+    });
   }
 
   mainWindow.on('closed', () => {
