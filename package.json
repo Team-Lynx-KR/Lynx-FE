@@ -1,6 +1,6 @@
 {
   "name": "lynx-fe",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "AI 비서와 함께 매매하는 데스크톱 HTS 애플리케이션",
   "main": "dist-electron/main.js",
   "scripts": {
