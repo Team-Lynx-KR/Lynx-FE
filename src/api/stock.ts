@@ -265,12 +265,16 @@ export interface StockNewsRequest {
 // 종목별 뉴스 조회 응답
 export interface StockNewsResponse {
   message: string;
+  stock: {
+    code: string;
+    name: string;
+  };
   news: Array<{
     title: string;
-    link: string;
-    description?: string;
-    publishedAt?: string;
-    [key: string]: any;
+    description: string;
+    url: string;
+    publishedAt: string;
+    source: string;
   }>;
 }
 

@@ -21,9 +21,10 @@ const formatTimeAgo = (dateString: string): string => {
 
 interface NewsItem {
   title: string;
-  link: string;
+  url: string;
   description?: string;
   publishedAt?: string;
+  source?: string;
   time?: string;
 }
 
@@ -55,11 +56,12 @@ const NewsPanel = ({ stockName }: NewsPanelProps) => {
       const response = await getStockNews({ keyword: keyword.trim() });
 
       if (response && response.news) {
-        const formattedNews: NewsItem[] = response.news.map((item, index) => ({
+        const formattedNews: NewsItem[] = response.news.map((item) => ({
           title: item.title,
-          link: item.link,
+          url: item.url,
           description: item.description,
           publishedAt: item.publishedAt,
+          source: item.source,
           time: item.publishedAt ? formatTimeAgo(item.publishedAt) : undefined,
         }));
 
@@ -137,16 +139,23 @@ const NewsPanel = ({ stockName }: NewsPanelProps) => {
           ) : newsItems.length > 0 ? (
             newsItems.map((news, index) => (
               <div
-                key={`${news.link}-${index}`}
+                key={`${news.url}-${index}`}
                 className="p-3 rounded-lg cursor-pointer hover:bg-dark-700/50 transition-all duration-200"
                 onClick={() => {
-                  // 링크가 있으면 새 탭에서 열기
-                  if (news.link) {
-                    window.open(news.link, '_blank');
+                  // URL이 있으면 새 탭에서 열기
+                  if (news.url) {
+                    window.open(news.url, '_blank', 'noopener,noreferrer');
                   }
                 }}
               >
                 <div className="flex items-start justify-between gap-2 mb-1">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    {news.source && (
+                      <span className="text-xs text-dark-500 bg-dark-700 px-1.5 py-0.5 rounded flex-shrink-0">
+                        {news.source}
+                      </span>
+                    )}
+                  </div>
                   {news.time && (
                     <span className="text-xs text-dark-500 flex-shrink-0">{news.time}</span>
                   )}
