@@ -6,7 +6,7 @@ interface DetailCardProps {
   onClick?: () => void;
 }
 
-const DetailCard = ({ title = '상세', stockName = '삼성전자', onClick }: DetailCardProps) => {
+const DetailCard = ({ title = '상세', stockName = '', onClick }: DetailCardProps) => {
   return (
     <div
       className="rounded-lg border border-dark-800 p-4 flex flex-col cursor-pointer hover:opacity-90 transition-opacity duration-200 h-full"
@@ -58,4 +58,3 @@ const DetailCard = ({ title = '상세', stockName = '삼성전자', onClick }: D
 };
 
 export default DetailCard;
-

@@ -47,6 +47,16 @@ const Dashboard = () => {
     changePercent: number;
     orderType: 'buy' | 'sell';
   } | null>(null);
+  
+  // 로딩 상태 관리
+  const [_isStockDataLoading, setIsStockDataLoading] = useState(true); // 추후 로딩 UI에 사용 예정
+  const [isAILoading, setIsAILoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null); // AI 분석 에러 메시지
+  const [hasAIData, setHasAIData] = useState(false); // AI 분석 데이터 존재 여부
+  
+  // AI 분석 데이터 (추후 API 연동 시 사용)
+  const [aiAnalysisKeyword, setAiAnalysisKeyword] = useState<string | null>(null); // 검색 키워드
+
   const wsClientRef = useRef<WebSocketClient | null>(null);
   const isConnectingRef = useRef<boolean>(false);
   const connectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -54,10 +64,12 @@ const Dashboard = () => {
   // WebSocket URL 환경 변수에서 가져오기
   const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
 
-  // 종목 데이터 로드
+  // 1. 주가 데이터 요청 (독립적으로 처리)
   useEffect(() => {
-    const loadInitialStockData = async () => {
+    const loadStockData = async () => {
       try {
+        setIsStockDataLoading(true);
+        
         // 검색으로 선택된 종목이 있으면 기존 로직 사용
         if (searchedStock) {
           try {
@@ -102,6 +114,8 @@ const Dashboard = () => {
             }
           } catch (error) {
             console.error('[Dashboard] ❌ 검색 종목 데이터 로드 실패:', error);
+          } finally {
+            setIsStockDataLoading(false);
           }
           return;
         }
@@ -160,16 +174,77 @@ const Dashboard = () => {
         setStocks(stocksMap);
         setDashboardStocksList(stocksList);
 
-        // API 응답 순서 확인을 위한 로그
-        console.log('[Dashboard] ✅ 대시보드 종목 데이터 로드 완료');
-        console.log('[Dashboard] 📊 종목 데이터:', stocksMap);
+        console.log('[Dashboard] ✅ 주가 데이터 로드 완료');
       } catch (error) {
-        console.error('[Dashboard] ❌ 대시보드 종목 데이터 로드 실패:', error);
+        console.error('[Dashboard] ❌ 주가 데이터 로드 실패:', error);
+      } finally {
+        setIsStockDataLoading(false);
       }
     };
 
-    loadInitialStockData();
+    loadStockData();
   }, [searchedStock]); // searchedStock 변경 시 재로드
+
+  // 2. 종목별 뉴스 데이터 요청 (독립적으로 처리)
+  // NewsPanel 컴포넌트에서 자체적으로 처리하므로 여기서는 로딩 상태만 관리
+  // NewsPanel에 stockName prop을 전달하여 자동으로 뉴스를 로드하도록 함
+
+  // 3. AI 분석 요청 (검색 키워드 기반)
+  const handleAIAnalysis = (keyword: string) => {
+    setAiAnalysisKeyword(keyword);
+  };
+
+  useEffect(() => {
+    const loadAIAnalysis = async () => {
+      if (!aiAnalysisKeyword || aiAnalysisKeyword.trim() === '') {
+        return;
+      }
+
+      try {
+        setIsAILoading(true);
+        setAiError(null);
+        setHasAIData(false);
+        
+        // TODO: AI 분석 API 연동
+        // const response = await getAIAnalysis({ keyword: aiAnalysisKeyword.trim() });
+        // if (response && response.data) {
+        //   setHasAIData(true);
+        //   setAiError(null);
+        // } else {
+        //   setHasAIData(false);
+        //   setAiError('AI 분석 데이터를 불러올 수 없습니다.');
+        // }
+        
+        console.log('[Dashboard] 🔮 AI 분석 요청 (추후 구현):', aiAnalysisKeyword);
+        
+        // 임시로 2초 후 완료 처리 (실제 API 연동 시 제거)
+        // 실제로는 API 응답에 따라 성공/실패 처리
+        setTimeout(() => {
+          // 임시: 항상 실패로 처리 (에러 메시지 테스트용)
+          // 실제 API 연동 시 성공 시 setHasAIData(true), 실패 시 setAiError('...')
+          setHasAIData(false);
+          setAiError('AI 분석 기능은 아직 구현되지 않았습니다.');
+          setIsAILoading(false);
+          setAiAnalysisKeyword(null); // 완료 후 리셋
+        }, 2000);
+      } catch (error: any) {
+        console.error('[Dashboard] ❌ AI 분석 로드 실패:', error);
+        setHasAIData(false);
+        setAiError(error?.message || 'AI 분석 데이터를 불러오는 중 오류가 발생했습니다.');
+        setIsAILoading(false);
+        setAiAnalysisKeyword(null);
+      }
+    };
+
+    loadAIAnalysis();
+  }, [aiAnalysisKeyword]);
+
+  // 자동 로드 옵션 (추후 필요 시 활성화)
+  // useEffect(() => {
+  //   if (dashboardStocksList.length > 0 && !shouldLoadAI && !isAILoading) {
+  //     setShouldLoadAI(true); // 자동으로 AI 분석 요청
+  //   }
+  // }, [dashboardStocksList]);
 
   // Dashboard 마운트 시 WebSocket 자동 연결 (로그인 성공 후 자동 실행)
   useEffect(() => {
@@ -376,17 +451,25 @@ const Dashboard = () => {
       {/* 우측: 세로로 3개 배치 (AI 예측, 보조 지표, 뉴스) */}
       <div className="w-80 flex flex-col gap-4 h-full overflow-hidden">
         {/* AI 예측 */}
-        <div className="flex-shrink-0" style={{ height: 'calc(33.333% - 8px)' }}>
-          <AIPanelCompact />
+        <div className="flex-shrink-0" style={{ height: 'calc(45% - 10.67px)' }}>
+          <AIPanelCompact 
+            stockName={dashboardStocks[0]?.name}
+            stockCode={dashboardStocks[0]?.code}
+            isLoading={isAILoading}
+            hasData={hasAIData}
+            error={aiError}
+            onAnalyzeClick={handleAIAnalysis} // 검색 키워드 전달
+            autoLoad={false} // 자동 로드 옵션 (true로 변경 시 자동 요청)
+          />
         </div>
 
         {/* 보조 지표 */}
-        <div className="flex-shrink-0" style={{ height: 'calc(33.333% - 8px)' }}>
+        <div className="flex-shrink-0" style={{ height: 'calc(20% - 5.33px)' }}>
           <IndicatorCard stockName={dashboardStocks[0]?.name || ''} />
         </div>
 
         {/* 뉴스 */}
-        <div className="flex-shrink-0 flex-1 min-h-0" style={{ height: 'calc(33.333% - 8px)' }}>
+        <div className="flex-shrink-0 flex-1 min-h-0" style={{ height: 'calc(35% - 9.33px)' }}>
           <NewsPanel stockName={dashboardStocks[0]?.name} />
         </div>
       </div>

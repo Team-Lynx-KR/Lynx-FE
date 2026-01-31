@@ -233,7 +233,7 @@ const AIPanel = () => {
       <AIRecommendationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        stockName="삼성전자"
+        stockName=""
         stockCode="005930"
       />
 
