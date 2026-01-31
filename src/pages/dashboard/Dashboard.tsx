@@ -6,7 +6,7 @@ import AIPanelCompact from '../../components/dashboard/AIPanelCompact';
 import NewsPanel from '../../components/dashboard/NewsPanel';
 import BuyOrderModal from '../../components/modal/BuyOrderModal';
 import WebSocketClient from '../../utils/websocket';
-import { getKISWebSocketAuth, searchStock } from '../../api/stock';
+import { getKISWebSocketAuth, searchStock, getDashboardStocks } from '../../api/stock';
 import { useAppStore } from '../../store/useAppStore';
 
 // 전역 연결 플래그 (모든 Dashboard 인스턴스 공유)
@@ -22,29 +22,23 @@ interface StockData {
   marketCap?: number;
   foreignOwnership?: number;
   per?: number;
+  dailyPrices?: Array<{
+    date: string;
+    open: number;
+    close: number;
+    high: number;
+    low: number;
+    volume: string;
+  }>;
 }
 
 const Dashboard = () => {
   const { searchedStock, setWsConnected, setWsClient } = useAppStore();
 
-  // 대시보드에 표시할 종목 목록 (3x3 = 9개)
-  const defaultDashboardStocks = [
-    { code: '005930', name: '삼성전자' },
-    { code: '000660', name: 'SK하이닉스' },
-    { code: '035420', name: 'NAVER' },
-    { code: '373220', name: 'LG에너지솔루션' },
-    { code: '035720', name: '카카오' },
-    { code: '005380', name: '현대차' },
-    { code: '006400', name: '삼성SDI' },
-    { code: '028260', name: '삼성물산' },
-    { code: '051910', name: 'LG화학' },
-  ];
-
-  // 검색으로 선택된 종목이 있으면 해당 종목만, 없으면 기본 9개 종목
-  const dashboardStocks = searchedStock
-    ? [{ code: searchedStock.code, name: searchedStock.name }]
-    : defaultDashboardStocks;
-
+  // API에서 받은 종목 목록
+  const [dashboardStocksList, setDashboardStocksList] = useState<
+    Array<{ code: string; name: string }>
+  >([]);
   const [stocks, setStocks] = useState<Record<string, StockData>>({});
   const [selectedStock, setSelectedStock] = useState<{
     name: string;
@@ -60,99 +54,122 @@ const Dashboard = () => {
   // WebSocket URL 환경 변수에서 가져오기
   const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
 
-  // 종목 데이터 로드 (REST API 사용)
+  // 종목 데이터 로드
   useEffect(() => {
     const loadInitialStockData = async () => {
       try {
-        // 검색으로 선택된 종목이 변경되거나 기본 종목 목록 로드
-        // 각 종목에 대해 종목명으로 검색하여 기본 정보 가져오기
-        const stockPromises = dashboardStocks.map(async (stockInfo) => {
+        // 검색으로 선택된 종목이 있으면 기존 로직 사용
+        if (searchedStock) {
           try {
-            // API는 종목명으로 검색해야 함
-            const response = await searchStock({ keyword: stockInfo.name });
-            
-            // 응답 구조: { message: string, stock: {...}, prices: [...] }
-            if (!response || !response.stock) {
-              console.warn(`[Dashboard] ⚠️ ${stockInfo.name} 검색 응답 형식 오류:`, response);
-              // 응답 형식이 맞지 않아도 종목은 표시
-              return {
-                code: stockInfo.code,
-                name: stockInfo.name,
-                price: 0,
-                change: 0,
-                changePercent: 0,
-              };
+            const response = await searchStock({ keyword: searchedStock.name });
+
+            if (response && response.stock) {
+              const stockData = response.stock;
+              const latestPrice =
+                response.prices && response.prices.length > 0 ? response.prices[0] : null;
+              const previousPrice =
+                response.prices && response.prices.length > 1 ? response.prices[1] : null;
+
+              let price = 0;
+              let change = 0;
+              let changePercent = 0;
+
+              if (latestPrice) {
+                price = latestPrice.close || 0;
+                const prevClose = previousPrice?.close || price;
+                change = price - prevClose;
+                changePercent = prevClose !== 0 ? (change / prevClose) * 100 : 0;
+              }
+
+              setStocks({
+                [stockData.code || searchedStock.code]: {
+                  code: stockData.code || searchedStock.code,
+                  name: stockData.name || searchedStock.name,
+                  price: price,
+                  change: change,
+                  changePercent: changePercent,
+                  volume: latestPrice?.volume || 0,
+                  dailyPrices: response.prices?.map((p) => ({
+                    date: p.date,
+                    open: p.open,
+                    close: p.close,
+                    high: p.high,
+                    low: p.low,
+                    volume: String(p.volume || 0),
+                  })),
+                },
+              });
             }
-
-            const stockData = response.stock;
-            // prices 배열의 첫 번째 요소(최신 일봉)에서 가격 정보 가져오기
-            const latestPrice = response.prices && response.prices.length > 0 
-              ? response.prices[0] 
-              : null;
-            const previousPrice = response.prices && response.prices.length > 1
-              ? response.prices[1]
-              : null;
-
-            // 이전 가격과 비교하여 등락률 계산
-            let price = 0;
-            let change = 0;
-            let changePercent = 0;
-
-            if (latestPrice) {
-              price = latestPrice.close || 0;
-              const prevClose = previousPrice?.close || price;
-              change = price - prevClose;
-              changePercent = prevClose !== 0 ? ((change / prevClose) * 100) : 0;
-            }
-
-            // 종목 정보 반환
-            return {
-              code: stockData.code || stockInfo.code,
-              name: stockData.name || stockInfo.name,
-              price: price,
-              change: change,
-              changePercent: changePercent,
-              volume: latestPrice?.volume || 0,
-            };
-            // 검색 결과가 없어도 종목은 표시 (기본값 사용)
-            return {
-              code: stockInfo.code,
-              name: stockInfo.name,
-              price: 0,
-              change: 0,
-              changePercent: 0,
-            };
           } catch (error) {
-            console.error(`[Dashboard] ❌ ${stockInfo.name} 검색 실패:`, error);
-            // 검색 실패해도 종목은 표시
-            return {
-              code: stockInfo.code,
-              name: stockInfo.name,
-              price: 0,
-              change: 0,
-              changePercent: 0,
-            };
+            console.error('[Dashboard] ❌ 검색 종목 데이터 로드 실패:', error);
           }
-        });
+          return;
+        }
 
-        const results = await Promise.all(stockPromises);
+        // 기본 대시보드 종목 데이터 로드
+        const response = await getDashboardStocks();
+
+        if (!response || !response.stocks || response.stocks.length === 0) {
+          console.warn('[Dashboard] ⚠️ 대시보드 종목 데이터가 없습니다.');
+          return;
+        }
+
         const stocksMap: Record<string, StockData> = {};
+        // API 응답 순서를 그대로 유지하기 위해 먼저 종목 목록 생성 (필터링 후에도 순서 유지)
+        const stocksList: Array<{ code: string; name: string }> = response.stocks
+          .filter((stock) => stock.dailyPrices && stock.dailyPrices.length > 0)
+          .map((stock) => ({
+            code: stock.code,
+            name: stock.name,
+          }));
 
-        results.forEach((stock) => {
-          if (stock) {
-            stocksMap[stock.code] = stock;
+        // API 응답 순서대로 데이터 처리
+        response.stocks.forEach((stock) => {
+          if (!stock.dailyPrices || stock.dailyPrices.length === 0) {
+            return;
           }
+
+          // 최신 일봉 데이터 (첫 번째 요소)
+          const latestPrice = stock.dailyPrices[0];
+          // 이전 일봉 데이터 (두 번째 요소)
+          const previousPrice = stock.dailyPrices[1] || latestPrice;
+
+          const price = latestPrice.close || 0;
+          const prevClose = previousPrice.close || price;
+          const change = price - prevClose;
+          const changePercent = prevClose !== 0 ? (change / prevClose) * 100 : 0;
+
+          stocksMap[stock.code] = {
+            code: stock.code,
+            name: stock.name,
+            price: price,
+            change: change,
+            changePercent: changePercent,
+            volume: parseFloat(latestPrice.volume || '0'),
+            dailyPrices: stock.dailyPrices.map((p) => ({
+              date: p.date,
+              open: p.open,
+              close: p.close,
+              high: p.high,
+              low: p.low,
+              volume: p.volume,
+            })),
+          };
         });
 
         setStocks(stocksMap);
-        console.log('[Dashboard] ✅ 초기 종목 데이터 로드 완료:', stocksMap);
+        setDashboardStocksList(stocksList);
+
+        // API 응답 순서 확인을 위한 로그
+        console.log('[Dashboard] ✅ 대시보드 종목 데이터 로드 완료');
+        console.log('[Dashboard] 📊 종목 데이터:', stocksMap);
       } catch (error) {
-        console.error('[Dashboard] ❌ 초기 종목 데이터 로드 실패:', error);
+        console.error('[Dashboard] ❌ 대시보드 종목 데이터 로드 실패:', error);
       }
     };
 
     loadInitialStockData();
-  }, []); // 초기 마운트 시 한 번만 실행
+  }, [searchedStock]); // searchedStock 변경 시 재로드
 
   // Dashboard 마운트 시 WebSocket 자동 연결 (로그인 성공 후 자동 실행)
   useEffect(() => {
@@ -205,14 +222,6 @@ const Dashboard = () => {
         setWsClient(client);
 
         console.log('[Dashboard] ✅ WebSocket 연결 성공 - 대시보드 데이터 수신 준비 완료');
-
-        // ⚠️ KIS WebSocket 구독 메시지 형식 문제로 인해 일시적으로 비활성화
-        // 현재 메시지 형식이 서버 프로토콜과 맞지 않아 연결이 끊어짐 (code 1006)
-        // 해결 방안:
-        // 1. 백엔드에서 종목 데이터를 REST API로 제공받기
-        // 2. 백엔드에서 KIS WebSocket을 프록시하여 올바른 형식으로 변환
-        // 3. KIS WebSocket API 문서 확인 후 정확한 메시지 형식 적용
-
         console.log('[Dashboard] ⚠️ WebSocket 연결 완료 (PINGPONG만 수신 중)');
         console.log('[Dashboard] ℹ️ 구독 메시지는 메시지 형식 문제로 일시적으로 비활성화됨');
         console.log('[Dashboard] ℹ️ 백엔드 REST API를 통해 종목 데이터를 가져오는 것을 권장합니다');
@@ -312,19 +321,25 @@ const Dashboard = () => {
     };
   }, [wsUrl]);
 
+  // 검색으로 선택된 종목이 있으면 해당 종목만, 없으면 API에서 받은 종목 목록 사용
+  const dashboardStocks = searchedStock
+    ? [{ code: searchedStock.code, name: searchedStock.name }]
+    : dashboardStocksList;
+
   // 대시보드 종목 카드 렌더링
   const renderStockCard = (stockInfo: { code: string; name: string }) => {
     const stock = stocks[stockInfo.code];
     const hasData = !!stock;
 
     return (
-        <StockChartCard
+      <StockChartCard
         key={stockInfo.code}
         name={stockInfo.name}
         code={stockInfo.code}
         price={stock?.price || 0}
         changePercent={stock?.changePercent || 0}
         isUp={(stock?.changePercent || 0) >= 0}
+        dailyPrices={stock?.dailyPrices}
         onClick={(orderType) => {
           if (hasData) {
             setSelectedStock({
@@ -344,8 +359,18 @@ const Dashboard = () => {
     <div className="flex h-full w-full gap-4 p-4 overflow-hidden relative">
       {/* 중앙: 멀티 차트 대시보드 (3x3 그리드) */}
       <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-2 min-w-0">
-        {/* 3x3 = 9개 종목 차트 */}
-        {dashboardStocks.map((stock) => renderStockCard(stock))}
+        {/* 3x3 = 9개 종목 차트 - API 응답 순서대로 렌더링 */}
+        {dashboardStocks.length > 0 ? (
+          dashboardStocks.map((stock) => {
+            // API 응답 순서대로 렌더링 (배열 순서 보장)
+            return renderStockCard(stock);
+          })
+        ) : (
+          // 로딩 중이거나 데이터가 없을 때
+          <div className="col-span-3 row-span-3 flex items-center justify-center text-dark-400">
+            종목 데이터를 불러오는 중...
+          </div>
+        )}
       </div>
 
       {/* 우측: 세로로 3개 배치 (AI 예측, 보조 지표, 뉴스) */}
@@ -357,7 +382,7 @@ const Dashboard = () => {
 
         {/* 보조 지표 */}
         <div className="flex-shrink-0" style={{ height: 'calc(33.333% - 8px)' }}>
-          <IndicatorCard stockName={dashboardStocks[0].name} />
+          <IndicatorCard stockName={dashboardStocks[0]?.name || ''} />
         </div>
 
         {/* 뉴스 */}
